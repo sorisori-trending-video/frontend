@@ -5,7 +5,7 @@ export default function HomePage() {
         <div className="rounded-3xl border border-zinc-200/70 bg-white/70 p-7 shadow-sm backdrop-blur sm:p-10">
           <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold text-indigo-700">Ad intelligence</p>
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">Ad Ranker</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">Trending Videos</h1>
             <p className="text-zinc-600">기능을 선택하세요.</p>
           </div>
 

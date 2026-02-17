@@ -152,10 +152,10 @@ export default function TiktokCreativeCenterPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [count, setCount] = useState<number | null>(null);
   const [videos, setVideos] = useState<TiktokCreativeCenterTrendingVideo[]>([]);
   const [openTitleKey, setOpenTitleKey] = useState<string | null>(null);
   const [pagination, setPagination] = useState<{ has_more?: boolean; limit?: number; page?: number; total_count?: number } | null>(null);
+  const [resultQuery, setResultQuery] = useState("");
 
   const countryOptions = useMemo<SelectOption[]>(() => {
     const raw = Array.isArray(TRENDING_REGION_OPTIONS) ? TRENDING_REGION_OPTIONS : [];
@@ -179,21 +179,37 @@ export default function TiktokCreativeCenterPage() {
     };
   }, [videosCountry, videosPeriod, videosSortBy]);
 
-  const fetchPage = async (page: number) => {
+  const fetchPage = async (page: number, mode: "replace" | "append" = "replace") => {
     const nextPage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
     setError("");
     setLoading(true);
-    setVideos([]);
-    setCount(null);
-    setPagination(null);
     setOpenTitleKey(null);
-    setVideosPage(nextPage);
+    if (mode === "replace") {
+      setVideos([]);
+      setPagination(null);
+      setResultQuery("");
+    }
 
     try {
       const data = await fetchTiktokCreativeCenterTrendingVideos({ ...request, videos_page: nextPage });
-      setVideos(data.videos ?? []);
-      setCount(typeof data.count === "number" ? data.count : (data.videos ?? []).length);
+      const incoming = data.videos ?? [];
+      setVideos((prev) => {
+        if (mode === "replace") return incoming;
+        const merged = [...prev, ...incoming];
+        // item_url 기준으로 중복 제거 (append 시 안전장치)
+        const seen = new Set<string>();
+        const uniq: TiktokCreativeCenterTrendingVideo[] = [];
+        for (const v of merged) {
+          const key = v.item_url ?? "";
+          if (!key) continue;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          uniq.push(v);
+        }
+        return uniq;
+      });
       setPagination(data.pagination ?? null);
+      setVideosPage(nextPage);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "요청 실패";
       setError(msg);
@@ -220,6 +236,22 @@ export default function TiktokCreativeCenterPage() {
     "inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus:shadow-md focus:shadow-indigo-200";
   const buttonSecondary =
     "inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zinc-200";
+
+  const keyedVideos = useMemo(() => {
+    return videos.map((v, idx) => {
+      const key = (v.item_url ?? "").trim() ? String(v.item_url) : `${idx}-unknown`;
+      return { key, v };
+    });
+  }, [videos]);
+
+  const visibleVideos = useMemo(() => {
+    const q = resultQuery.trim().toLowerCase();
+    if (!q) return keyedVideos;
+    return keyedVideos.filter(({ v }) => {
+      const hay = [v.title ?? ""].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [keyedVideos, resultQuery]);
 
   return (
     <div className="min-h-dvh bg-linear-to-b from-white via-white to-indigo-50/60">
@@ -289,20 +321,12 @@ export default function TiktokCreativeCenterPage() {
                 {loading ? "불러오는 중..." : "가져오기"}
               </button>
 
-              {count != null && (
-                <div className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
-                  <span className="font-medium">가져온 개수</span>
-                  <span className="tabular-nums">{count}개</span>
-                </div>
-              )}
-
               <button
                 className={buttonSecondary}
                 type="button"
                 onClick={() => {
                   setError("");
                   setVideos([]);
-                  setCount(null);
                   setPagination(null);
                   setOpenTitleKey(null);
                   setVideosPage(1);
@@ -323,16 +347,28 @@ export default function TiktokCreativeCenterPage() {
         )}
 
         <div className="mt-8">
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-sm font-semibold text-indigo-700">Results</div>
               <h2 className="mt-1 text-lg font-semibold tracking-tight text-zinc-900">Trending Videos</h2>
             </div>
+
+            <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-1">
+              <label className="text-sm font-medium text-zinc-900">
+                결과 검색
+                <input
+                  className={inputBase}
+                  value={resultQuery}
+                  onChange={(e) => setResultQuery(e.target.value)}
+                  placeholder="내용으로 검색"
+                  autoComplete="off"
+                />
+              </label>
+            </div>
           </div>
 
           <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {videos.map((v, idx) => {
-              const key = `${idx}-${v.item_url ?? "unknown"}`;
+            {visibleVideos.map(({ v, key }) => {
               const title = v.title ?? "(제목 없음)";
               const isTitleOpen = openTitleKey === key;
               return (
@@ -411,55 +447,30 @@ export default function TiktokCreativeCenterPage() {
             const size = pagination?.limit ?? 20;
             const totalCount = typeof pagination?.total_count === "number" ? pagination.total_count : null;
             const totalPages = totalCount != null && size > 0 ? Math.max(1, Math.ceil(totalCount / size)) : null;
-
-            const groupStart = Math.floor((Math.max(1, currentPage) - 1) / 10) * 10 + 1;
-            const groupEnd = totalPages != null ? Math.min(groupStart + 9, totalPages) : groupStart + 9;
-            const pages = Array.from({ length: Math.max(0, groupEnd - groupStart + 1) }, (_, i) => groupStart + i);
-
-            const canPrev = currentPage > 1;
-            const canNext = totalPages != null ? currentPage < totalPages : Boolean(pagination?.has_more);
+            const canLoadMore = totalPages != null ? currentPage < totalPages : Boolean(pagination?.has_more);
 
             return (
-              <div className="mt-6 flex justify-center">
-                <nav className="inline-flex items-center gap-1 rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm">
-                  <button
-                    type="button"
-                    className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchPage(currentPage - 1)}
-                    disabled={loading || !canPrev}
-                    aria-label="이전 페이지"
-                  >
-                    &lt;
-                  </button>
+              <div className="mt-6 flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  className={`inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zinc-200`}
+                  onClick={() => fetchPage(currentPage + 1, "append")}
+                  disabled={loading || !canLoadMore}
+                >
+                  <span aria-hidden="true">↓</span>
+                  {loading ? "불러오는 중..." : canLoadMore ? "더보기" : "마지막 페이지"}
+                </button>
 
-                  {pages.map((p) => {
-                    const active = p === currentPage;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        className={`min-w-10 rounded-xl px-3 py-2 text-sm font-semibold ${
-                          active ? "bg-indigo-600 text-white" : "text-zinc-700 hover:bg-zinc-50"
-                        } disabled:cursor-not-allowed disabled:opacity-50`}
-                        onClick={() => fetchPage(p)}
-                        disabled={loading || (totalPages != null && (p < 1 || p > totalPages))}
-                        aria-current={active ? "page" : undefined}
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
-
-                  <button
-                    type="button"
-                    className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchPage(currentPage + 1)}
-                    disabled={loading || !canNext}
-                    aria-label="다음 페이지"
-                  >
-                    &gt;
-                  </button>
-                </nav>
+                <div className="text-xs text-zinc-500">
+                  {totalPages != null ? (
+                    <>
+                      {currentPage} / {totalPages} 페이지
+                      {totalCount != null ? ` · 총 ${totalCount.toLocaleString()}개` : null}
+                    </>
+                  ) : (
+                    <>{currentPage} 페이지</>
+                  )}
+                </div>
               </div>
             );
           })()}
@@ -467,6 +478,12 @@ export default function TiktokCreativeCenterPage() {
           {!loading && !error && videos.length === 0 && (
             <div className="mt-6 rounded-3xl border border-dashed border-zinc-300 bg-white/60 p-10 text-center text-sm text-zinc-600">
               아직 결과가 없어요. 위에서 조건을 입력하고 가져와보세요.
+            </div>
+          )}
+
+          {!loading && !error && videos.length > 0 && visibleVideos.length === 0 && (
+            <div className="mt-6 rounded-3xl border border-dashed border-zinc-300 bg-white/60 p-10 text-center text-sm text-zinc-600">
+              검색 조건에 맞는 결과가 없어요.
             </div>
           )}
         </div>

@@ -552,11 +552,11 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [count, setCount] = useState<number | null>(null);
   const [pagination, setPagination] = useState<{ has_more?: boolean; page?: number; size?: number; total_count?: number } | null>(null);
   const [materials, setMaterials] = useState<TiktokCreativeCenterTopAdsDashboardMaterial[]>([]);
   const [openTitleKey, setOpenTitleKey] = useState<string | null>(null);
   const [openObjectiveKey, setOpenObjectiveKey] = useState<string | null>(null);
+  const [resultQuery, setResultQuery] = useState("");
 
   const request = useMemo<TiktokCreativeCenterTopAdsDashboardRequest>(() => {
     return {
@@ -567,22 +567,47 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
     };
   }, [dashboardIndustry?.id, dashboardPeriod, dashboardRegion?.id, dashboardSortBy]);
 
-  const fetchPage = async (page: number) => {
+  function materialKey(m: TiktokCreativeCenterTopAdsDashboardMaterial) {
+    const key = m.video_url ?? m.cover ?? m.ad_title ?? "";
+    return key.trim() ? key : "unknown";
+  }
+
+  const fetchPage = async (page: number, mode: "replace" | "append" = "replace") => {
     const nextPage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
     setError("");
     setLoading(true);
-    setMaterials([]);
-    setCount(null);
-    setPagination(null);
     setOpenTitleKey(null);
     setOpenObjectiveKey(null);
-    setDashboardPage(nextPage);
+    if (mode === "replace") {
+      setMaterials([]);
+      setPagination(null);
+      setResultQuery("");
+    }
 
     try {
       const data = await fetchTiktokCreativeCenterTopAdsDashboard({ ...request, dashboard_page: nextPage });
-      setMaterials(data.materials ?? []);
-      setCount(typeof data.count === "number" ? data.count : (data.materials ?? []).length);
+      const incoming = data.materials ?? [];
+      setMaterials((prev) => {
+        if (mode === "replace") return incoming;
+        const merged = [...prev, ...incoming];
+        // video_url(우선) / cover / ad_title 기준으로 중복 제거 (append 시 안전장치)
+        const seen = new Set<string>();
+        const uniq: TiktokCreativeCenterTopAdsDashboardMaterial[] = [];
+        for (const m of merged) {
+          const k = materialKey(m);
+          if (!k || k === "unknown") {
+            // 키가 애매하면 일단 넣어둠(중복 제거 정확도는 떨어지지만 데이터 유실 방지)
+            uniq.push(m);
+            continue;
+          }
+          if (seen.has(k)) continue;
+          seen.add(k);
+          uniq.push(m);
+        }
+        return uniq;
+      });
       setPagination(data.pagination ?? null);
+      setDashboardPage(nextPage);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "요청 실패";
       setError(msg);
@@ -609,6 +634,26 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
     WebkitLineClamp: 3,
     overflow: "hidden",
   };
+
+  const keyedMaterials = useMemo(() => {
+    return materials.map((m, idx) => {
+      const stable = materialKey(m);
+      const key = stable !== "unknown" ? stable : `${idx}-unknown`;
+      return { key, m };
+    });
+  }, [materials]);
+
+  const visibleMaterials = useMemo(() => {
+    const q = resultQuery.trim().toLowerCase();
+    if (!q) return keyedMaterials;
+    return keyedMaterials.filter(({ m }) => {
+      const objective = objectiveToDisplay(m.objective_key);
+      const hay = [m.ad_title ?? "", objective?.title ?? "", objective?.description ?? ""]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [keyedMaterials, resultQuery]);
 
   return (
     <div className="min-h-dvh bg-linear-to-b from-white via-white to-indigo-50/60">
@@ -696,12 +741,12 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
                 {loading ? "불러오는 중..." : "가져오기"}
               </button>
 
-              {(count != null || pagination) && (
+              {(materials.length > 0 || pagination) && (
                 <div className="flex flex-wrap items-center gap-2">
-                  {count != null && (
+                  {materials.length > 0 && (
                     <div className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
                       <span className="font-medium">가져온 개수</span>
-                      <span className="tabular-nums">{count}개</span>
+                      <span className="tabular-nums">{materials.length.toLocaleString()}개</span>
                     </div>
                   )}
                   {/* {pagination && (
@@ -722,7 +767,6 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
                 onClick={() => {
                   setError("");
                   setMaterials([]);
-                  setCount(null);
                   setPagination(null);
                   setOpenTitleKey(null);
                   setOpenObjectiveKey(null);
@@ -748,16 +792,28 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
         )}
 
         <div className="mt-8">
-          <div className="flex items-end justify-between gap-3">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-sm font-semibold text-indigo-700">Results</div>
               <h2 className="mt-1 text-lg font-semibold tracking-tight text-zinc-900">Top Ads</h2>
             </div>
+
+            <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-1">
+              <label className="text-sm font-medium text-zinc-900">
+                결과 검색
+                <input
+                  className={inputBase}
+                  value={resultQuery}
+                  onChange={(e) => setResultQuery(e.target.value)}
+                  placeholder="제목, 목적, URL..."
+                  autoComplete="off"
+                />
+              </label>
+            </div>
           </div>
 
           <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {materials.map((m, idx) => {
-              const key = `${idx}-${m.video_url ?? m.cover ?? m.ad_title ?? "unknown"}`;
+            {visibleMaterials.map(({ m, key }, idx) => {
               const title = m.ad_title ?? "(제목 없음)";
               const objective = objectiveToDisplay(m.objective_key);
               const isTitleOpen = openTitleKey === key;
@@ -878,56 +934,30 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
             const size = pagination?.size ?? 20;
             const totalCount = typeof pagination?.total_count === "number" ? pagination.total_count : null;
             const totalPages = totalCount != null && size > 0 ? Math.max(1, Math.ceil(totalCount / size)) : null;
-
-            // 1~10, 11~20 ... 페이지 그룹
-            const groupStart = Math.floor((Math.max(1, currentPage) - 1) / 10) * 10 + 1;
-            const groupEnd = totalPages != null ? Math.min(groupStart + 9, totalPages) : groupStart + 9;
-            const pages = Array.from({ length: Math.max(0, groupEnd - groupStart + 1) }, (_, i) => groupStart + i);
-
-            const canPrev = currentPage > 1;
-            const canNext = totalPages != null ? currentPage < totalPages : Boolean(pagination?.has_more);
+            const canLoadMore = totalPages != null ? currentPage < totalPages : Boolean(pagination?.has_more);
 
             return (
-              <div className="mt-6 flex justify-center">
-                <nav className="inline-flex items-center gap-1 rounded-2xl border border-zinc-200 bg-white p-2 shadow-sm">
-                  <button
-                    type="button"
-                    className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchPage(currentPage - 1)}
-                    disabled={loading || !canPrev}
-                    aria-label="이전 페이지"
-                  >
-                    &lt;
-                  </button>
+              <div className="mt-6 flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zinc-200"
+                  onClick={() => fetchPage(currentPage + 1, "append")}
+                  disabled={loading || !canLoadMore}
+                >
+                  <span aria-hidden="true">↓</span>
+                  {loading ? "불러오는 중..." : canLoadMore ? "더보기" : "마지막 페이지"}
+                </button>
 
-                  {pages.map((p) => {
-                    const active = p === currentPage;
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        className={`min-w-10 rounded-xl px-3 py-2 text-sm font-semibold ${
-                          active ? "bg-indigo-600 text-white" : "text-zinc-700 hover:bg-zinc-50"
-                        } disabled:cursor-not-allowed disabled:opacity-50`}
-                        onClick={() => fetchPage(p)}
-                        disabled={loading || (totalPages != null && (p < 1 || p > totalPages))}
-                        aria-current={active ? "page" : undefined}
-                      >
-                        {p}
-                      </button>
-                    );
-                  })}
-
-                  <button
-                    type="button"
-                    className="rounded-xl px-3 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    onClick={() => fetchPage(currentPage + 1)}
-                    disabled={loading || !canNext}
-                    aria-label="다음 페이지"
-                  >
-                    &gt;
-                  </button>
-                </nav>
+                <div className="text-xs text-zinc-500">
+                  {totalPages != null ? (
+                    <>
+                      {currentPage} / {totalPages} 페이지
+                      {totalCount != null ? ` · 총 ${totalCount.toLocaleString()}개` : null}
+                    </>
+                  ) : (
+                    <>{currentPage} 페이지</>
+                  )}
+                </div>
               </div>
             );
           })()}
@@ -935,6 +965,12 @@ export default function TiktokCreativeCenterTopAdsDashboardPage() {
           {!loading && !error && materials.length === 0 && (
             <div className="mt-6 rounded-3xl border border-dashed border-zinc-300 bg-white/60 p-10 text-center text-sm text-zinc-600">
               아직 결과가 없어요. 위에서 조건을 선택하고 가져와보세요.
+            </div>
+          )}
+
+          {!loading && !error && materials.length > 0 && visibleMaterials.length === 0 && (
+            <div className="mt-6 rounded-3xl border border-dashed border-zinc-300 bg-white/60 p-10 text-center text-sm text-zinc-600">
+              검색 조건에 맞는 결과가 없어요.
             </div>
           )}
         </div>
