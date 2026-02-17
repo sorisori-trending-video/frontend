@@ -1,0 +1,773 @@
+https://apify.com/doliz/tiktok-creative-center-scraper 
+
+같은 apify의 api를 가져오는데 이번엔 target 값이 달라.
+
+{
+  "cookies": "_ttp=39RbuXVqGLiS7yIQDMZVNybskYe; lang_type=en; tt_csrf_token=7oR4Y0U6-422u_MVkH7bAv3dHFAW8uFkeQbk; tt_chain_token=Rdds8TbH+5dQkIlH5pmHVA==; ttwid=1%7CzHbqlN5dWmgbpfPyrY-c-B5y_U5gxRnTP4lI6Oh98n0%7C1771097304%7C0b3ec75da23020c8c8e894cdf494547a43871825fda65c78c49462c1895e79ac; msToken=AXKMElPBglOLFBBGTMuYsBC5LVWVQy1OcTxlLf06Eii_TiAmeHIc8SNodL269wFpq1krR0KVQ-QSnkPYGpO5e0xijdptT3xjED46iJ6JkC1Y8IVc0aSdLe0L77W3opqcDw2pBw==; msToken=vKYulCpZ1YqNlQpzIIMAlUoQjRLO-u6mTG4Sho0hmoLGNCqfVj7Tcm1sQUPdnc1zH8xtS2zJF8KuK16Pi4foGjmKxDMSjLCfG03sP9_wJBRCbtgCRSeWv2xHr8f6INSy2j2Lst4ASjpATkMtAZ4L23U=",
+  "dashboard_likes": [
+    "4",
+    "5"
+  ],
+  "dashboard_limit": 20,
+  "dashboard_period": "30",
+  "dashboard_region": [
+    "KR"
+  ],
+  "dashboard_search": "kbeauty",
+  "dashboard_sort_by": "play_6s_rate",
+  "hashtags_new_to_top_100": false,
+  "popular_approved_for_business_use": false,
+  "popular_new_to_top_100": false,
+  "target": "top_ads_dashboard",
+  "dashboard_page": 1,
+  "spotlight_page": 1,
+  "spotlight_limit": 50,
+  "ad_analytics_material_id": "7558904828435202056",
+  "ad_keyframe_material_id": "7558904828435202056",
+  "ad_keyframe_metric": "retain_ctr",
+  "ad_percentile_material_id": "7558904828435202056",
+  "ad_percentile_metric": "ctr_percentile",
+  "ad_percentile_period": "180",
+  "ad_recommend_material_id": "7558904828435202056",
+  "ad_recommend_industry": "23116000000",
+  "ad_recommend_country": "US",
+  "keyword_period": "7",
+  "keyword_order_by": "post",
+  "keyword_order_type": "desc",
+  "keyword_page": 1,
+  "keyword_limit": 50,
+  "kvideos_keyword": "shopping",
+  "kvideos_period": "7",
+  "kvideos_limit": 50,
+  "kexamples_keyword": "shopping",
+  "kexamples_period": "7",
+  "kexamples_order_by": "ctr",
+  "kexamples_order_type": "desc",
+  "kexamples_page": 1,
+  "kexamples_limit": 50,
+  "krelated_keyword": "shopping",
+  "krelated_content_type": "keyword",
+  "krelated_rank_type": "popular",
+  "krelated_period": "7",
+  "krelated_page": 1,
+  "krelated_limit": 50,
+  "creative_insights_industry": "25000000000",
+  "creative_insights_period_type": "week",
+  "creative_insights_date": "2025-10-12",
+  "creative_insights_order_field": "ctr",
+  "creative_insights_order_type": "desc",
+  "creative_insights_page": 1,
+  "creative_insights_limit": 20,
+  "top_products_level": "l3",
+  "top_products_country": "",
+  "top_products_period_type": "week",
+  "top_products_date": "2025-10-12",
+  "top_products_order_field": "ctr",
+  "top_products_order_type": "desc",
+  "top_products_page": 1,
+  "top_products_limit": 20,
+  "hashtags_country": "US",
+  "hashtags_period": "7",
+  "hashtags_page": 1,
+  "hashtags_limit": 60,
+  "hashtag_analytics_hashtag_name": "hoco",
+  "hashtag_analytics_country": "",
+  "hashtag_analytics_period": "7",
+  "popular_country": "US",
+  "popular_period": "7",
+  "popular_page": 1,
+  "popular_limit": 20,
+  "breakout_country": "US",
+  "breakout_page": 1,
+  "breakout_limit": 20,
+  "song_analytics_clip_id": "7326640926458743557",
+  "song_analytics_country": "US",
+  "song_analytics_period": "7",
+  "creators_country": "US",
+  "creators_sort_by": "follower",
+  "creators_page": 1,
+  "creators_limit": 50,
+  "videos_country": "US",
+  "videos_period": "7",
+  "videos_sort_by": "vv",
+  "videos_page": 1,
+  "videos_limit": 20
+}
+
+인풋 형식은 이러하고
+
+
+[
+  {
+    "code": 0,
+    "msg": "OK",
+    "request_id": "20260215043053BD602C51F5319B824815",
+    "data": {
+      "materials": [
+        {
+          "cost": 2,
+          "ctr": 0.23,
+          "highlight": "By replying to a question, the video introduces the brand and product unaffectedly to make a connection with the audience. Combining the tidying scenes with soft music also creates a warm and homelike atmosphere to further deliver the brand's value of lifestyle-enhancement.",
+          "id": "7200915172051156993",
+          "like": 86410,
+          "video_info": {
+            "vid": "v10033g50000cfnckcbc77u9ht6h2g10",
+            "duration": 13.313,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oMCUrBozxAyJQbRfhUv2HAEjBA0ut9kw0mIjnY~tplv-noop.image?dr=18692&refresh_token=2e6d9928&x-expires=1771122666&x-signature=I53VeDiYMyclrK%2Fzif90v5fsgfc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cfnckcbc77u9ht6h2g10",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/bd13e3c0f4ddad0eabf4e7466e3e558d/69912fea/video/tos/alisg/tos-alisg-ve-0051c001-sg/okhx0BmBIAAt3EO2QxJw0CjRoAfUQP9z2bHYBJ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=1408&bt=704&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OWY3OWU7ZGQ4ZmU7aTplaUBpM2prdzw6ZmZmaTMzODYzNEAwNjAtMy1fNV4xLWAzYjBgYSMuLzNlcjRfaGtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.21,
+          "highlight": "Responding to real comments and questions is a great way to convey key product features while also establishing relevance. Addressing commonly asked questions from your community members will pique their interest and keep them engaged.",
+          "id": "7130614705291427842",
+          "like": 141208,
+          "video_info": {
+            "vid": "v10033g50000cbqgg2bc77u1p0b4ivbg",
+            "duration": 30.139,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/b548222ccdc04b7ba7c2a4efac736461~tplv-noop.image?dr=18692&refresh_token=434c6eee&x-expires=1771122683&x-signature=oS5amB2C0vtyBv48I%2FjPZQRn4G0%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cbqgg2bc77u1p0b4ivbg",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/f96907b1d301e4b9bef17150b431be4d/69912ffb/video/tos/alisg/tos-alisg-ve-0051c001-sg/okkInCfCBnT9yQS2uXeiggEDNADlQGJbDGBiFQ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=3308&bt=1654&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ODhpZTNnZDhnZTRlNmdmN0Bpank3MzQ6ZjVqZTMzODYzNEBfMTUxLTUuX2ExYjUxYS0wYSNfZl9tcjRfZG5gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.15,
+          "highlight": "Without additional text or oral information, the video elaborates on the concealer's efficacy clearly and directly, showing an apealing before v.s. after transformation to attract and persuade viewers.",
+          "id": "7211231141121196034",
+          "like": 373141,
+          "video_info": {
+            "vid": "v10033g50000cjnlaobc77u49p6agljg",
+            "duration": 10.378,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/osvnEfAmozyTdyBqVwQkAVXoEtVwTTAhl2IG6B~tplv-noop.image?dr=18692&refresh_token=4b278cff&x-expires=1771122663&x-signature=%2Bn%2B%2FmjDgsMIJbPrPO%2BZ%2B1blhbCg%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cjnlaobc77u49p6agljg",
+            "video_url": {
+              "1080p": "https://v16m-default.tiktokcdn.com/987032912f78ceb73f46105c8d9e9c94/69912fe7/video/tos/alisg/tos-alisg-ve-0051c001-sg/o8ndoIwEzyEq6AVVwhtYADQOofTkEyABDEnm6v/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=6674&bt=3337&cs=0&ds=4&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=MzM1NWk2NTxpNTppNjdlZ0Bpam9kczc6ZnJvbTMzODYzNEBiNjYwYGIyNl4xYjQ0YzNfYSNnZDM2cjRfXmtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000",
+              "360p": "https://v16m-default.tiktokcdn.com/0d2ca5f06440b5e63567cea32c0a9aef/69912fe7/video/tos/alisg/tos-alisg-ve-0051c001-sg/oIzTvXtqKyV6yfUB7WEAAwonhdEAVIkwmoTHhn/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=1016&bt=508&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Ozw3PDg4ZTg8PGk1ZGloNkBpam9kczc6ZnJvbTMzODYzNEAwMV9jYDVeXjQxYS9gYS41YSNnZDM2cjRfXmtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000",
+              "480p": "https://v16m-default.tiktokcdn.com/2b531754eb88f8bc4de248a5c1bf4341/69912fe7/video/tos/alisg/tos-alisg-ve-0051c001-sg/owoEwIdITyuVA7ynkf6wBchWvzEXtnAVmPAqPo/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=1514&bt=757&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=PDxlN2k5OGQ5ZDg7PDQ2PEBpam9kczc6ZnJvbTMzODYzNEA1Ni41NS0vXjExXi4tNF9hYSNnZDM2cjRfXmtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000",
+              "540p": "https://v16m-default.tiktokcdn.com/52bdd821a4a075308e8962d08d7b5923/69912fe7/video/tos/alisg/tos-alisg-ve-0051c001-sg/okF4tAzdnVHAXfmyyTVwqQoBwIcvAkhEBSE6ho/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2024&bt=1012&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=M2UzNmlmaDlmZDQzOzNlZ0Bpam9kczc6ZnJvbTMzODYzNEBfMDIxMWJeNWAxL2MuMDAwYSNnZDM2cjRfXmtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000",
+              "720p": "https://v16m-default.tiktokcdn.com/3bbd5e4f87d9698b14e3e624f883786d/69912fe7/video/tos/alisg/tos-alisg-ve-0051c001-sg/oweg1IDhvIkAO9kVJxDSBe7DNBXnngVQlQbzQr/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=3126&bt=1563&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZTs2aGlkO2Y3PDw5Ozs5PEBpam9kczc6ZnJvbTMzODYzNEBeMV4zNDMzNTAxYzY2NDFiYSNnZDM2cjRfXmtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000"
+            },
+            "width": 720,
+            "height": 1280
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.15,
+          "highlight": "Through the lens of a real person talking his way through the game, the video appears credible with commentary that sounds trustworthy. The audience feels like they're being let in on certain shortcuts or \"secrets\" for getting ahead in the game.",
+          "id": "7165768841499066370",
+          "like": 377333,
+          "video_info": {
+            "vid": "v0911dg40001cdo7ukjc77ua0r66rqqg",
+            "duration": 19.156,
+            "cover": "https://p16-sign-va.tiktokcdn.com/tos-maliva-v-2c3654-us/1c87385bed544878bb94b61816a653a1~tplv-noop.image?dr=18692&refresh_token=09120c6b&x-expires=1771122672&x-signature=oAG6zl6e5msWxBP%2FDxXQ9Kxa3gk%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v0911dg40001cdo7ukjc77ua0r66rqqg",
+            "video_url": {
+              "360p": "https://v16m-default.tiktokcdn.com/7a8c3ac8884c513a119e38289f81542a/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/ocnZpDUg9ofcSeOR1JZbLjj1dbDqB1QDgjQHEB/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=1556&bt=778&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZmhoO2c1PGU2NjpkZ2hmNkBpanQ5dWQ6Zm46ZzQzN2c0M0AzYWIuM2JhNTExLmEyLTMzYSNubzMtcjRncmxgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "480p": "https://v16m-default.tiktokcdn.com/9c81897e3c6d868e037470c86efc9b76/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/ocEiBR1jJDSgF16o9qgbBefczntbDHQU1bbjZQ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2370&bt=1185&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Njw6ZWhlZjc2ZTNlMzszZ0BpanQ5dWQ6Zm46ZzQzN2c0M0BgYmBjYTFeXzYxMmE0XmBiYSNubzMtcjRncmxgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "540p": "https://v16m-default.tiktokcdn.com/093fe1135bc122ed128c28f92f28076c/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/oYowxeCD2AYgflAHI6Sr2LFeAtmE1kfufeUe5cg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2842&bt=1421&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NmU2Nzs8OTk1ZDo1ZjU8ZUBpanQ5dWQ6Zm46ZzQzN2c0M0AzXjUxXi82XmAxNWIxNjA2YSNubzMtcjRncmxgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "720p": "https://v16m-default.tiktokcdn.com/a98f9fc370993b91f636a1220fd0efef/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/oUjgS1QcbEQgD9Dngn1jZ1BqfDBJeRlbDHIoGU/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=3668&bt=1834&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Ojw2PGQ6aTw5ODo5OmY8OEBpanQ5dWQ6Zm46ZzQzN2c0M0AtMTZjMV8uXy8xM2NeYWExYSNubzMtcjRncmxgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 720,
+            "height": 1280
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.1,
+          "highlight": "Begin by raising a question to pique curiosity and then introduce the product as a solution while immersively displaying its features and selling points to generate viewer interest. ",
+          "id": "7143431764996390914",
+          "like": 531853,
+          "video_info": {
+            "vid": "v12044gd0000cch8q5bc77u2s5uqumf0",
+            "duration": 25.702,
+            "cover": "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068c799-us/7504f379a1404fabb89d1f6c2aa63072~tplv-noop.image?dr=18692&refresh_token=a464fef0&x-expires=1771122678&x-signature=A3lxI%2FmvPlJwQeqaEYM460CYV%2Bc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v12044gd0000cch8q5bc77u2s5uqumf0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/1376a5a5758d20b360b6d263be87b2e7/69912ff6/video/tos/maliva/tos-maliva-ve-0068c799-us/f4def9380d57463295ceca0461c1a065/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2514&bt=1257&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZWZlODg6MzlnNGRlaWU5NUBpM3B0ODU6Zjg7ZjMzZzczNEBjMi4tXy8zX2AxYDA1NTQvYSNjcnJwcjRfbmVgLS1kMS9zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.32,
+          "highlight": "Introduce the brand and catch viewers' attention by targeting the specific community of singles and aligning the products' benefits with their demamd for convenient cooking and delicious and healthy meals. Besides, it keep showing various attractive meals and uses discount as CTA in the end.",
+          "id": "7210988416346652674",
+          "like": 23144,
+          "video_info": {
+            "vid": "v10033g50000ciritebc77u3rejqsi0g",
+            "duration": 32.256,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/owkt1n6ICIeyBY5bDgHu0QkaX1NctAeJDQ9BCt~tplv-noop.image?dr=18692&refresh_token=b524024e&x-expires=1771122685&x-signature=M%2FgxyH%2B6xqdvXEaJnQVg4MG7%2FVc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ciritebc77u3rejqsi0g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/b76493e89e59573bdd9b35f88d9f4f9f/69912ffd/video/tos/alisg/tos-alisg-ve-0051c001-sg/o0D9e5QgQPAeCDy7VINkHtb066n5BBOIcgHkty/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=3786&bt=1893&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZWU7ZTNlNTs7PDlnPDw2NkBpamx0aDY6ZmhsbDMzODYzNEBiMS1eYGNfNS0xMl41Ll9fYSMtcGdvcjRfcW9gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.36,
+          "highlight": "Emphasize the product's feature of customization. Create a proper scenario of a friends' birthday where you need a special gift to inspire viewers' demand. Showcase the process of customization to win credibility and deepen the product impression by using a viral sound.",
+          "id": "7221989735623163906",
+          "like": 181494,
+          "video_info": {
+            "vid": "v10033g50000cgsqinbc77uept1lcm10",
+            "duration": 9.11,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/ooDma0NDIBAbWQ05CkfgoEnsQBelsqOna3bdxd~tplv-noop.image?dr=18692&refresh_token=a013cf31&x-expires=1771122662&x-signature=kTKlY%2FntQyOhAH5uewNKdQOYTV4%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cgsqinbc77uept1lcm10",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/f2bbe4d5ad3f750bb82301e7e564efcb/69912fe6/video/tos/alisg/tos-alisg-ve-0051c001-sg/oYNyA2oBhubfWWTARwxIHCzamS0NzAQOBtPEWo/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2538&bt=1269&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OjppNDc8ZTk3aGY5ZjdlNEBpM3Bvd2g6ZnF0ajMzODYzNEBiNDVfYl9gX2ExNWBhNS40YSMuYC5tcjRfZnBgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.11,
+          "highlight": "Taking advantage of renowned key words, \"Xbox\" and \"iPhone\", the video delivers the core ground-breaking function of the product to gain attention and generate interet. Then it displays the usage of the product and selling points in detail to further persuade action.",
+          "id": "7020763931041185793",
+          "like": 129970,
+          "video_info": {
+            "vid": "v10033g50000c5ncgqjc77ub6mv2nar0",
+            "duration": 21.227,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/255fcd1c73b44b24a7110c2b0061ed02~tplv-noop.image?dr=18692&refresh_token=37e40c55&x-expires=1771122674&x-signature=yxFdBBmA0cNnaNCYE4HnT1QHwRA%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000c5ncgqjc77ub6mv2nar0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/43eaca62dde07b0ebed592c040b8745b/69912ff2/video/tos/alisg/tos-alisg-ve-0051c001-sg/oUshkgQnhBLWVdXeDF5sxAQaDBxfbbOg3NIkbq/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2276&bt=1138&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aDQ5ODw4NDhoNTo7OTs7Z0BpM2Q1cGU6ZnRmODMzODYzNEBeMTYtNi40XmMxLzNiXmEtYSNva3MzcjRnZGtgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.2,
+          "highlight": "The video highlights a common pain point by comparing the product with others, showcasing it as the solution. It then presents a series of selling points to pique interest and concludes with a call-to-action using the price.",
+          "id": "7233755864024563714",
+          "like": 50415,
+          "video_info": {
+            "vid": "v10033g50000cht5etbc77u64uvbont0",
+            "duration": 36.907,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/oEX6mS6uyEo1B2AGWAPfqZuhI6zBJQA86wt3O7~tplv-noop.image?dr=18692&refresh_token=9b19e231&x-expires=1771122689&x-signature=TpsNXde8vZuqTk%2Bq3doP5vYLPdw%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cht5etbc77u64uvbont0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/8bb67b980c65cfee932913c6da7ca7da/69913001/video/tos/alisg/tos-alisg-ve-0051c001-sg/oYA7GySAJ8uhBdfmOXEQaRAo6Qwt66G2sOPIFz/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2970&bt=1485&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OmU8M2VpNDpmaTU4ZGRmaEBpM3FleDk6Znc4azMzODYzNEBgYTExMTA1Ni0xMGFiXzZfYSNxbHMxcjRfYnFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.13,
+          "highlight": "A great way to catch viewers' attention is to get creative with your product's use case. Is there an unexpected way to use the product, or a cool customizable FUNction that allows people to feel like they're now \"in\" on this new, cool secret?",
+          "id": "7151155688521187329",
+          "like": 29296,
+          "video_info": {
+            "vid": "v10033g50000ccv03q3c77ufq7oe6j3g",
+            "duration": 30.1,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/c333bbd7f17a4ba5b799163d68277ab5~tplv-noop.image?dr=18692&refresh_token=76f6a4b2&x-expires=1771122683&x-signature=ad2E37xA9fpbS2S6z%2Frie4E25qU%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ccv03q3c77ufq7oe6j3g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/eed8da10c6bc6dc1d82193c9ca19d06b/69912ffb/video/tos/alisg/tos-alisg-ve-0051c001-sg/oAPfP2fQMH6AILemRgMA5FemQh2AArGOVGZKH3/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2904&bt=1452&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=N2Q8NjgzZDZnZjlnODhkPEBpam1oOmk6ZnQzZjMzODYzNEAyLTI0YDQuNl8xYmMtYDM0YSMwM2xucjQwMHNgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.16,
+          "highlight": "Showcase a real-time comparison between products, while communicating your product's value and superiority. Leverage your product's unique features to encourage a purchase.",
+          "id": "7182310470102122497",
+          "like": 33506,
+          "video_info": {
+            "vid": "v10033g50000cemat43c77u2ehil0a1g",
+            "duration": 43.542,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/d7f3c49928d44c02a8788be62fe9487b_1672261813~tplv-noop.image?dr=18692&refresh_token=b1a1f0c8&x-expires=1771122696&x-signature=XaRVHJG2JpDPgtb495F2unA2hIc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cemat43c77u2ehil0a1g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/49f96786fcc44a717c7cb5c937f2abaf/69913008/video/tos/alisg/tos-alisg-ve-0051c001-sg/oUDqTQQgQ5AeGDK5xfNUErbM56nUBBYIggTj6S/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=4684&bt=2342&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OWc2M2g6OWlpaGVpMzQ3OUBpamRvazU6ZjdkaDMzODYzNEAyMzA0MmIwNjExMWBgLzEtYSMuLWZicjQwcWpgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.24,
+          "highlight": "Establish credibility and spark interest in a great product by having different voices chime in on what they love about the product. Spotlighting multiple perspectives shows that more than one person would strongly vouch for the brand.",
+          "id": "7133639412269531137",
+          "like": 19239,
+          "video_info": {
+            "vid": "v10033g50000cbvse7jc77u5erap4d3g",
+            "duration": 29.633,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/52d33a35704f4b78b4383bd3a4b896e3~tplv-noop.image?dr=18692&refresh_token=000c1275&x-expires=1771122682&x-signature=2dnbgpBI2aPNSZ%2Bbr282oAj7h%2BM%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cbvse7jc77u5erap4d3g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/7cbaaf4d5a3e211e6975a4fc61dd5c0d/69912ffa/video/tos/alisg/tos-alisg-ve-0051c001-sg/oYpOIgHdPzAvStJARefFDbFQSGSANCNfEWND2h/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=5124&bt=2562&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZmU5OjRlaTs4NDg7NGhpNEBpamdzdTg6Zjp2ZTMzODYzNEBeXzZfLWE1NTYxMzUzMTI1YSMwMV5icjRnYnNgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.16,
+          "highlight": "Includes footage of a customer happily trying out the hoodie. Keep the promotion information text on-screen for the entire duration of the video so that the viewer always has context and could be inspired to take action.",
+          "id": "7165514199685595138",
+          "like": 10975,
+          "video_info": {
+            "vid": "v10033g50000cdogaerc77udpgohkm00",
+            "duration": 15.025,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/osNKEohzUztAaNGABxIxBWAIUzf5DmAuEdABrw~tplv-noop.image?dr=18692&refresh_token=65a1e395&x-expires=1771122668&x-signature=XfmaqoRnvpRESV2r9eMQ9Y0YvNE%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cdogaerc77udpgohkm00",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/6a9443417ba84b126aff18506eb2aa09/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/oondKNQAIhWEX1CAIkxBbz5AuEkDoaUtwAzfBm/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2520&bt=1260&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NmQ8ZWVnZzw2NDloN2g6aUBpM3Bramc6ZmhqZzMzODYzNEBeYl9iL2FhXzAxNjRfMDZeYSMtaGxtcjRvXmxgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.25,
+          "highlight": "Through a love story behind the blogger's \"look\", the video invites viewers to get ready together. While the blogger is doing makeup, she shares how to use the product and how she feels about it, adding her own creative flair.",
+          "id": "7067602559029428226",
+          "like": 6434,
+          "video_info": {
+            "vid": "v10033g50000ccovr3rc77u4os3alel0",
+            "duration": 38.71,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/2691939aef864a4abdbb2ab4157cbb9e~tplv-noop.image?dr=18692&refresh_token=642beb54&x-expires=1771122691&x-signature=mpao1Wp3ORIb2PqIohOKeVF6L8E%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ccovr3rc77u4os3alel0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/f4259ab8489c6aec40369211b7c62572/69913003/video/tos/alisg/tos-alisg-ve-0051c001-sg/osmmoIHEza07PAQuwhtcAEQrqfxwFxABEEqmQ2/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=2404&bt=1202&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NDwzZ2Q5NWU5OjM2aGczZEBpM2hkdjc6ZjZ5ZjMzODYzNEBiNTIxNTE0NTQxLzRjYWIvYSNpaTBscjRvb2xgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.25,
+          "highlight": "The video is visually centered on the product, showcasing its usage, quality, details and more to create desire. Additionally, it also take advantage of various sound effects, including the sound of unboxing and charging to create a deeper impression.",
+          "id": "7250632897211400193",
+          "like": 22578,
+          "video_info": {
+            "vid": "v10033g50000cn588m7og65i1vq82oj0",
+            "duration": 15.443,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/o4LGDlxgjQAQxt0eCfCiVeAvMAIIPCGmLIkbAL~tplv-noop.image?dr=18692&refresh_token=1b445c03&x-expires=1771122668&x-signature=0TpQQH5wWYUIX2QuGEePGVy6wYc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cn588m7og65i1vq82oj0",
+            "video_url": {
+              "360p": "https://v16m-default.tiktokcdn.com/772facc45fe4e12698aafe697cdd724e/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/ogHlAxRSBABkQNZTgIFmyhQDYffYBGoEBDBXKE/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=1082&bt=541&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NjdpZDg4NTdnZWU1OGZmOkBpM3I7eWw5cnA7cTMzODYzNEA2LV8vMmEzXi4xYS5hYTItYSNnL24uMmQ0NTJgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "480p": "https://v16m-default.tiktokcdn.com/f0ecaf0270d13f9ed562b7c6cda57d79/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/oQAeDkeGgQIpbCLGPhWMHlxQKCGADIifLgCxIA/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=1574&bt=787&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OjM1ZDk4aWhkNDNkaTo6aUBpM3I7eWw5cnA7cTMzODYzNEBfMF4uMGIzXzYxNV41Yy1iYSNnL24uMmQ0NTJgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "540p": "https://v16m-default.tiktokcdn.com/8644c8271f721e3cd62c4cf8d3de90b0/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/owADCIQkLD5GhxxIAGCPf7blLgiQgIebGGePKM/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=2072&bt=1036&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aTY8aDkzPDM5OTplZTQ6NkBpM3I7eWw5cnA7cTMzODYzNEA2MGJhLl8xXjYxYy5fNDUxYSNnL24uMmQ0NTJgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "720p": "https://v16m-default.tiktokcdn.com/e34243555b3ef7c1ce64b797469767f6/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/oQmDiMGGLExxlCVfObNMACCGPIkQIggeALQevI/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=2242&bt=1121&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZjY7OTU8NmhkNTQ7PDg3OkBpM3I7eWw5cnA7cTMzODYzNEA2YTU2MTQuNi8xNDJjNjMwYSNnL24uMmQ0NTJgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.14,
+          "highlight": "This creative opens by highlighting a pain point/challenge in the first 3-6 seconds, then showcases the product as the solution, and adds a personal story to build trust. It also uses a clear CTA in the video description.",
+          "id": "7152281461495398401",
+          "like": 8196,
+          "video_info": {
+            "vid": "v10033g50000cd10423c77ueg6j0latg",
+            "duration": 50.753,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/c29aeab8e94f4b44a7647d3d057a5158~tplv-noop.image?dr=18692&refresh_token=f4a33659&x-expires=1771122703&x-signature=Qu4QcW2%2FknCDQCuy6Haqt%2Fhd3uc%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cd10423c77ueg6j0latg",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/8aacf3214b1d44bd7a063794ec952aa4/6991300f/video/tos/alisg/tos-alisg-ve-0051c001-sg/oMA4BD0jQDIgQNyII2fbBeGQLnW9AgQdVdVw0g/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2724&bt=1362&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Zjg5NjxkOjg8NWg0NGhlOEBpamQzOWg6ZjUzZzMzODYzNEAtNDQyMmBfXy8xYy4wXzMtYSNxaWdkcjQwMS5gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.19,
+          "highlight": "Multiple types of media can be edited into a video to keep the creative visually interesting. Images and video footage can be used together to spice up the creative. Try to add elements such as text, effects, and sound when using still images.",
+          "id": "7162294295491330050",
+          "like": 5435,
+          "video_info": {
+            "vid": "v10033g50000cdip9fbc77uf9e29vac0",
+            "duration": 14.294,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oAlENJqwBnlZkQfl7Y8lgSIDNAeBBy9bDFBj4Z~tplv-noop.image?dr=18692&refresh_token=255ca96d&x-expires=1771122667&x-signature=7sLUyC09bgEufZoDIb%2F4gpdVt0s%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cdip9fbc77uf9e29vac0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/c4b0dada76ac0055bce6403680801f63/69912feb/video/tos/alisg/tos-alisg-ve-0051c001-sg/o8sCAyPAeRGE5Nelfg2CbX6c66pinyGTAHDgwg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=1416&bt=708&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NmU1Z2RpNjhmOGQ2NjM0aEBpM2Q8aGk6ZmlzZzMzODYzNEBfNGEvY2AwX2IxYjQtMDVfYSNgcy82cjRfNmZgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.18,
+          "highlight": "The video starts off with a bold statement and visual presentation of the product - the shock value definitely catches the viewers' attention. It shows a view of the product in-hand (typical in unboxings), providing the viewer with a first-person POV.",
+          "id": "7190211997736927233",
+          "like": 12009,
+          "video_info": {
+            "vid": "v10033g50000cf4c7tjc77u7c6sbkg6g",
+            "duration": 24.967,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/ocaLPTBSEDf1NN0BMwjDIn9ByIlrQ2ubgAcejN~tplv-noop.image?dr=18692&refresh_token=93993ccc&x-expires=1771122677&x-signature=u6Yr56FwyJ%2B2a5iNnGeSeqDQO0w%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cf4c7tjc77u7c6sbkg6g",
+            "video_url": {
+              "1080p": "https://v16m-default.tiktokcdn.com/65bdde565fb93e582d6f23c8670054f2/69912ff5/video/tos/alisg/tos-alisg-ve-0051c001-sg/ooBiz7IwotAfNhGxH7mQH5NbtHzqAAKU6QBxYI/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=7024&bt=3512&cs=0&ds=4&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=PDk3ZTk6NTNlNzZkZDU4M0BpamplOTo6ZndmaTMzODYzNEAzMDRfYDAvNl4xLTViYF9jYSMzaHBgcjRnNDFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "360p": "https://v16m-default.tiktokcdn.com/71962ff357168294ef391386f9ed452d/69912ff5/video/tos/alisg/tos-alisg-ve-0051c001-sg/oQyA0BDMDfnHNfgAPhkp84jBbdQAsjRDELh2ux/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=1242&bt=621&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NTNoaTNpOjo0aTMzZzs2O0BpamplOTo6ZndmaTMzODYzNEA2NmBfYGE0XzMxLy9iMjZgYSMzaHBgcjRnNDFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "480p": "https://v16m-default.tiktokcdn.com/089389e5f489e2ad84c008d12be2a092/69912ff5/video/tos/alisg/tos-alisg-ve-0051c001-sg/oE79hY95wHHmAIiBxCUHbYfaB6AIoGNxAQQNzy/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=1824&bt=912&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZWg8Nzk8aDk7aDo4ODYzOUBpamplOTo6ZndmaTMzODYzNEA0Xl9eYzMzXl4xLmNhMl8yYSMzaHBgcjRnNDFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "540p": "https://v16m-default.tiktokcdn.com/be6fcc60a7004c0215c0702055d6b847/69912ff5/video/tos/alisg/tos-alisg-ve-0051c001-sg/ocxGxAUHHQz6wiA7I5PBAdbINofAm5QhODuYNw/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=2462&bt=1231&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NGY2Omg4OmQ2ZGc4aTY7NUBpamplOTo6ZndmaTMzODYzNEBfMi00NjI0NS4xMV41YjY2YSMzaHBgcjRnNDFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "720p": "https://v16m-default.tiktokcdn.com/0c593be5961b63f7cd206fef06d2162a/69912ff5/video/tos/alisg/tos-alisg-ve-0051c001-sg/o4ABNNGI6w4mz3FUQiHhA7AoxA5fIgzbxQHYbP/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=3560&bt=1780&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aWg4aWg5aGZmPDczNTs2OUBpamplOTo6ZndmaTMzODYzNEBjNjAvX2IwX2AxYzFgMTExYSMzaHBgcjRnNDFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 720,
+            "height": 1280
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.23,
+          "highlight": "Introduce the brand and get viewers excited by targeting a specific community of essential workers like nurses and aligning the products' selling points with the their demamd for affordable and functional scrubs. Additionally, suspense is set in the beginning and a price comparison is made to gain attention and encourage action.",
+          "id": "7099483639025680386",
+          "like": 4002,
+          "video_info": {
+            "vid": "v10033g50000ca36thbc77u9gmqda7dg",
+            "duration": 26.198,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/bd4e55090bf24117bf4a63c5d869deed~tplv-noop.image?dr=18692&refresh_token=dd042560&x-expires=1771122679&x-signature=%2FcoDD6Nt1B6TvtthmvB4g4uxiC8%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ca36thbc77u9gmqda7dg",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/24cf892773c2d0107556c1def368880b/69912ff7/video/tos/alisg/tos-alisg-v-0000/oIQlpNBinhRE7eqfT2gnvggDQOBbAFCpmoH2Dm/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2390&bt=1195&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aDw1aGgzNTQ6Njw0PDY1OUBpajpncDw6Zms5ZDMzODYzNEAwMGMzMTZjNjExXmBiYGFiYSNhXm5kcjRfcTBgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.41,
+          "highlight": "Offer valuable information so that viewers feel like they've benefited from seeing your content. Establish credibility by sharing knowledge and hacks that make the viewer confident that the people behind the brand know what they're talking about.",
+          "id": "7171114168028512257",
+          "like": 4458,
+          "video_info": {
+            "vid": "v10033g50000ce2tmujc77ufav5s9ph0",
+            "duration": 14.955,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oIBYAtzhe801XDdCIjDn9vbEQqy9gteyBQL6JN~tplv-noop.image?dr=18692&refresh_token=685ad523&x-expires=1771122667&x-signature=lIryAXwAX1yUtXVbQdZBt8DLQJ4%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ce2tmujc77ufav5s9ph0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/7a93e8cd7e0b398cf9884415fddd50e5/69912feb/video/tos/alisg/tos-alisg-ve-0051c001-sg/o0NmIB2ViP9BCB825lAvEUvTwQf8AxAuwEzojh/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=1694&bt=847&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=N2hlZmc1MzZoNzNpZ2k5PEBpM3N2eWk6Znh3aDMzODYzNEA1LS1jM18vNTExMF9eYi5fYSNlNjJecjRnai9gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.2,
+          "highlight": "Introduce the product and its fashion concept. Display a variety of ways to style your product. Showcase the product's versatility to inspire potential buyers to envision themselves using your product. End with a CTA to encourage them to take action.",
+          "id": "7154334673786241026",
+          "like": 2621,
+          "video_info": {
+            "vid": "v10033g50000cd4kpubc77u352bl9qv0",
+            "duration": 18.475,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/c3c594618c3f4a1da2d91c38bbe2bec3~tplv-noop.image?dr=18692&refresh_token=0c79a5d6&x-expires=1771122671&x-signature=rtmDUxbqPziTIgoAilcy664zFSw%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cd4kpubc77u352bl9qv0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/8b49a9d0fc0a694767ae258e2328a666/69912fef/video/tos/alisg/tos-alisg-ve-0051c001-sg/oYDB6zjSQSN1D5UDeUASsIEn2g8QSIpBeQbMzG/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2774&bt=1387&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NDo3Mzg6OWVkNWU6aTZkOEBpM3RvNTY6ZnhuZzMzODYzNEA0L2FhYDEyNTQxXjMyMF80YSNzNl8ycjRfbTFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.08,
+          "highlight": "This is usually a 1st person POV of an unboxing, allowing viewers to experience the excitement of opening a new product. This format enables viewers to get a real-time look at the quality and details of the product.",
+          "id": "7177051870933860353",
+          "like": 40126,
+          "video_info": {
+            "vid": "v10033g50000cer3gkbc77u8c43gaav0",
+            "duration": 16.533,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oQE02jKDuBjwFgNgQ4IAueDBhOnPVtAmwbeRFQ~tplv-noop.image?dr=18692&refresh_token=7c7e6c8e&x-expires=1771122669&x-signature=qKIf4765gHObbqpqx7UQvrrpsqA%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cer3gkbc77u8c43gaav0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/a64c7e32802a21329d0fc5b6576e5380/69912fed/video/tos/alisg/tos-alisg-ve-0051c001-sg/oIqBhjnveCVRtQ2ktNYeABKDwQ4IEQQbgjjggD/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2688&bt=1344&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NTRmN2RoZWk0PGg5M2lpZ0BpM2RqNzs6Zm42aDMzODYzNEAvNS5iMzMyNmAxL2A2MGI0YSNzXjBgcjRfZG9gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.08,
+          "highlight": "Customers invest in brands based on how inclusive their video ads are. In this ad we see a diversity of customer groups giving their testimonies about the product.  ",
+          "id": "7180025066401349634",
+          "like": 2458,
+          "video_info": {
+            "vid": "v10033g50000cei95lbc77u1ert1g68g",
+            "duration": 28.334,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oUyJbSIXHhgeGeDLJCS4ZtWHADPJt0AAqA2fd9~tplv-noop.image?dr=18692&refresh_token=0b55f9c7&x-expires=1771122681&x-signature=KQ7wgtckWVRdUErmbQ%2FQpfYwu%2B4%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cei95lbc77u1ert1g68g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/08d9207faf885c499891a32fda93ff87/69912ff9/video/tos/alisg/tos-alisg-ve-0051c001-sg/o0kAslxE2vGzYAoTwqo2kthlfBAmqQ0BHRYdDI/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2138&bt=1069&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Z2U7PGdnPGg1OzM8ZGRoaEBpajk0dTQ6Zm88aDMzODYzNEBjY14wMTY2NTYxNDI1YmJfYSM1ZHFicjRfMmZgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.07,
+          "highlight": "A dramatic opener based on the game's plot quickly catches viewers' attention and brings them into the game, followed by the blogger leading the viewer through various scenarios of the game with expressive interpretation to further showcase and elaborate the features of the game. A CTA is included in the end as well.",
+          "id": "7213258221116751874",
+          "like": 5428,
+          "video_info": {
+            "vid": "v0911dg40001cg96tsjc77u2q81828kg",
+            "duration": 26.214,
+            "cover": "https://p16-sign-va.tiktokcdn.com/tos-maliva-v-2c3654-us/48e1d037f4fa49e38c45c5bf0eac55bc~tplv-noop.image?dr=18692&refresh_token=9d40eab8&x-expires=1771122679&x-signature=hxtHnt8fT5aWd9%2BPRTEeeDqBb1Q%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v0911dg40001cg96tsjc77u2q81828kg",
+            "video_url": {
+              "360p": "https://v16m-default.tiktokcdn.com/c6d620419137c8f1e7571dfa406a7660/69912ff7/video/tos/maliva/tos-maliva-v-2c3654-us/oAIfpIABIt6kQdC5wNC0SUTKyv0bgz66CQhoCg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=1760&bt=880&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OjhnNDlmZDM7Zjc5O2k1OkBpajs7OzU6ZnY5ajQzN2c0M0AzYTIxLzJhXy8xYjBfMi8yYSNoLy5ucjRncTZgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "480p": "https://v16m-default.tiktokcdn.com/054768a42910af06ad33d01de43546be/69912ff7/video/tos/maliva/tos-maliva-v-2c3654-us/o00CkI5UzK5dTAbIohNvCzQWBf0gEygI4Cp64S/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2722&bt=1361&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NzppODNpNmQzaTtmNGQ6NUBpajs7OzU6ZnY5ajQzN2c0M0BjYDVeLS4xNTUxMS0uNGJfYSNoLy5ucjRncTZgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "540p": "https://v16m-default.tiktokcdn.com/e48c4227a08f10a2ee46a4f3bba90aba/69912ff7/video/tos/maliva/tos-maliva-v-2c3654-us/oISpCfA6kzygCKIdboFgCvvBINI50wghr4UNTQ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=3256&bt=1628&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=O2hlNWk8aWkzZThkODtpaUBpajs7OzU6ZnY5ajQzN2c0M0AxNDEyXi5fX2ExLjAyMWEyYSNoLy5ucjRncTZgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "720p": "https://v16m-default.tiktokcdn.com/68d1fb0ca4e5d43d3934a515fea963de/69912ff7/video/tos/maliva/tos-maliva-v-2c3654-us/okfdwH9yCC0BgI5QhCgT46bAkKSNUhKcI0poIz/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=4656&bt=2328&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Zzw2N2dlN2RmOjY7Ojw0OUBpajs7OzU6ZnY5ajQzN2c0M0A0MDYwNi9gNTQxNGMtNS80YSNoLy5ucjRncTZgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 720,
+            "height": 1280
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.36,
+          "highlight": "The video encourages the audience by taking advantage of a viral sound, She is the moment, to reveal the brand's premium and make a connection with the viewers. Keep in mind that popular sounds are constantly changing and evolving on TikTok, so every day is a new chance to incorporate new sounds into your creative concepts.",
+          "id": "7177074568368553985",
+          "like": 3028,
+          "video_info": {
+            "vid": "v10033g50000ced1et3c77u9fvob2l6g",
+            "duration": 8.15,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/oQkHFLiwIfLGgfNCq0HP2Dab7oA5DACApwIHQe~tplv-noop.image?dr=18692&refresh_token=240256a0&x-expires=1771122661&x-signature=py%2BkyNxXs0WdG8FnHP8DgRAILjY%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ced1et3c77u9fvob2l6g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/606ce3c38a6fb5422dfe027f6bb7c73b/69912fe5/video/tos/alisg/tos-alisg-ve-0051c001-sg/oI57RCkHNAwiDqogHLeC9bkCgUs2IeFwGfaAQP/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2778&bt=1389&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZGloNGU0aDw0M2Q2Ojs0ZEBpam9leTw6Znc0aDMzODYzNEA1Yl9gLTRjXy4xNDZiNi0vYSMzL2xjcjQwYmFgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b0000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.08,
+          "highlight": "By showing a real-time comparison between two products, the video emphasizes the key selling points of their product by showing real differences and results, which is obvious and could generate the audience's interest.",
+          "id": "7112275044852482050",
+          "like": 5580,
+          "video_info": {
+            "vid": "v10033g50000capu24bc77ueem2dqo5g",
+            "duration": 39.149,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/c59892799ef84e029f9b45c4206cd9ab~tplv-noop.image?dr=18692&refresh_token=bd0425d9&x-expires=1771122692&x-signature=hcyaA%2F4yfyGHbsQgW9NlRnGn1O0%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000capu24bc77ueem2dqo5g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/d87afc164980191468aaec870b1f4501/69913004/video/tos/alisg/tos-alisg-ve-0051c001-sg/oYfdQfzrNDBujEXIK7hIYCBAzQdg5OGTsitLYQ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2662&bt=1331&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=M2VoPDY1N2Q2ZGQ8ZWhmaUBpanJncGg6Zjd4ZDMzODYzNEBjXl4tNC02XjAxMmA2MTQ2YSMybi9icjRfL21gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.1,
+          "highlight": "The video starts with a common and disturbing situation where the audience could relate themselves to gain attention and arouse curiosity, and then introduces the product as a solution, perfectly showcasing product features and applications.",
+          "id": "7164467399885864962",
+          "like": 36951,
+          "video_info": {
+            "vid": "v12025gd0000cftrhf3c77ubej7n4ci0",
+            "duration": 17.904,
+            "cover": "https://p16-sign-va.tiktokcdn.com/tos-maliva-p-0068c799-us/e9d03485a7e045a6bb2c0853825338bc~tplv-noop.image?dr=18692&refresh_token=29e446c8&x-expires=1771122671&x-signature=rMpJbpkUjhDMKAGxrbQDKePBi%2BA%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v12025gd0000cftrhf3c77ubej7n4ci0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/69496c0de27acaf47a20c675cd21a81b/69912fef/video/tos/maliva/tos-maliva-ve-0068c799-us/fdd03b57246e403fb4ee43825b57ea26/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2818&bt=1409&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZDQ5O2k0M2g8ZjY4OGY0OUBpM2ZxbWU6Zml1aTMzZzgzNEBhLzAxXmMtX2AxY18yYWMzYSNmMTRicjQwZXFgLS1kLy9zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.25,
+          "highlight": "Text and graphics help to build different scenarios and deliver selling points of the product, which adds an additional layer of creativity and interaction to the video. This video also ends with a clear brand name and CTA that encourages viewers to try the product.",
+          "id": "7168514025067315201",
+          "like": 177,
+          "video_info": {
+            "vid": "v10033g50000cdtqr2bc77u51u6nnl2g",
+            "duration": 22.244,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/o4y6EneeQAgJHqBGKDWDj32ZEILbAqerG3CxKb~tplv-noop.image?dr=18692&refresh_token=8ec4bfca&x-expires=1771122675&x-signature=3MOJbeLyA1vho7Z9BZezbCS3Osw%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cdtqr2bc77u51u6nnl2g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/bfcdb8c9f859bc2794e60e6d3ee7ad3d/69912ff3/video/tos/alisg/tos-alisg-ve-0051c001-sg/oA1D5zbIFBfdA2EtBwF24ox2PKm7vALChE1AQQ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=1394&bt=697&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZTdlOTk3Z2hkOjo3ZjtpaUBpam9xeDg6ZjV0ZzMzODYzNEBjNTRiLzUzXy0xYTAzLl8vYSMvazMucjRfb3FgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.27,
+          "highlight": "Editing multiple clips together is another popular way to present content on TikTok. A video with mixed clips can be as simple as two video clips edited to cut scenes synced to a set \"beat\", or it can be many pieces of footage/images stitched together.",
+          "id": "7184839625865068545",
+          "like": 592,
+          "video_info": {
+            "vid": "v10033g50000ceqqribc77u58ivsjddg",
+            "duration": 27.456,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/ooBdAWatC8VLEDaGIjDnVeb2QPLPg3evBQrJTN~tplv-noop.image?dr=18692&refresh_token=d9b3e45f&x-expires=1771122680&x-signature=Z8II7fHy3R9NksoXCsKPk4UE%2BCk%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ceqqribc77u58ivsjddg",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/f15fa8414dcd46c6ffb45a74b6e603ef/69912ff8/video/tos/alisg/tos-alisg-ve-0051c001-sg/oMDNebIfV7qv4znTBgb28EAQg3QaoWsJBatjGD/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=6828&bt=3414&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZWRnNTwzZThpPDo4NDxlOkBpamd2bDg6Zmx0aDMzODYzNEAwYjVgYy5iNTQxMzQ1YjQ2YSNhZ3M1cjRfb25gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.01,
+          "highlight": "This creator POV is a refreshing approach that usually comes off as more trustworthy. By leveraging members of the community, you can appear more genuine. This is great for when you want to speak to more emotional elements of your product.",
+          "id": "7174524436761083906",
+          "like": 4531,
+          "video_info": {
+            "vid": "v10033g50000ce8gg1bc77u9e47nb00g",
+            "duration": 15.304,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/occQEWAxAwpIvOmBthBAtAgARCbzyfJQIo1C9B~tplv-noop.image?dr=18692&refresh_token=40e7b8f0&x-expires=1771122668&x-signature=c8cxeaiJH5U4AwbOiBtEKAMXcE0%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ce8gg1bc77u9e47nb00g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/809e57dba9fcde8b3bc248097457697b/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/oUBtAmAkeelH4DQgQjDnSTbCIdl9gg7hBQsFrN/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=3992&bt=1996&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZWdkOTRnaWc2ZzM6Z2U7OkBpajNxNzw6ZjRqaDMzODYzNEBhXzQ2MS0yNS8xXy1jMy4vYSMtXzRicjRfZDVgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 2,
+          "ctr": 0.05,
+          "highlight": "Lifestyle content focuses on the enhanced quality of life your consumers can achieve by using your product. Capture talent in an 'every-day' setting where they can share their positive experiences as well as the product's value propositions.",
+          "id": "7159659940944510978",
+          "like": 424,
+          "video_info": {
+            "vid": "v10033g50000cnsbd8vog65ttkh7rmh0",
+            "duration": 39.6,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-p-0051c001-sg/ooeHeAG8IbfDWLbnLtaH1HgGAQGxCIWgUp3WI3~tplv-noop.image?dr=18692&refresh_token=2db60ce9&x-expires=1771122692&x-signature=8uApsknx6wsBS%2FujnUTNduNEvX4%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cnsbd8vog65ttkh7rmh0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/e14c4dc3e567c4ffcec505845475a79a/69913004/video/tos/alisg/tos-alisg-ve-0051c001-sg/okQX3L7GACLUVAbk7TIAvFEDafDAtegB2fEjtg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&br=4214&bt=2107&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=M2g0ZDs7ZTNnODUzNzk0NUBpM3A6bnc5cjtlcTMzODYzNEAyMy01MGNiNl8xXjEvNGJjYSNlb2VxMmRzYXBgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 1,
+          "ctr": 0.04,
+          "highlight": "By replying to comments and conveying challenges, the video shows the gameplay while interacting with the audience and encouraging them to participate, which could pique viewers' curiosity and desire to win the game, and want to install the game.",
+          "id": "7183938350486913025",
+          "like": 1236,
+          "video_info": {
+            "vid": "v1011bg50001ceoe7q3c77uak64uqlc0",
+            "duration": 29.467,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/tos-alisg-v-01480a-sg/oQwtVsDdPWQMVhQfRxPoxcgInbEjeBBqaBxjOQ~tplv-noop.image?dr=18692&refresh_token=c86a3416&x-expires=1771122682&x-signature=4ayCW8tBzVhYKZw6%2BHgcMWytrCI%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v1011bg50001ceoe7q3c77uak64uqlc0",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/78d97266b776dfc169b0a925ee2eef43/69912ffa/video/tos/alisg/tos-alisg-v-01480a-sg/oIhI9hYzwVCAnHtfNbx2AQCKIoKYm2E2H0jxEo/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=1352&bt=676&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=PGc4ZzM7OTs1OmQ3NTRpZUBpM294OWQ6ZnRoaDQzOGU0NEBjLS9eMjAyNTUxLzVjLmFhYSNgbjFocjQwNGxgLS1kLi1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 1,
+          "ctr": 0.07,
+          "highlight": "The video opens with an intense battle filled with the sound of weapons firing and zombies yelling, pulling audiences into the scene. It includes clever and fun transitions in which the weapons change from rifle to machine gun in sync with the rhythm of the sounds.",
+          "id": "7156864962475687938",
+          "like": 77,
+          "video_info": {
+            "vid": "v10033g50000cd94lhjc77u07fb8n53g",
+            "duration": 30.034,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/0ab9b32751ef469a9f01d189dd54bcd3~tplv-noop.image?dr=18692&refresh_token=643fd13a&x-expires=1771122683&x-signature=peWgqxW0hBX9BnbGdX8RRCP2NXs%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cd94lhjc77u07fb8n53g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/cdd79ad36dd51a2750329c5eeb42e5be/69912ffb/video/tos/alisg/tos-alisg-ve-0051c001-sg/ooONAUDU0RdK8gQeD6rGbVgQnbAaeBgKXBdjkI/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=4760&bt=2380&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OTQ4NDVmZTlmZjZpPDM8NUBpajg7aTM6Zms3ZzMzODYzNEAuMDYyLzYzNWExLy1eYjUtYSMwa180cjRnaTZgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 1,
+          "ctr": 0.61,
+          "highlight": "The footage in the video above looks like it was shot on a professional camera in 9x16 aspect ratio. While not entirely necessary for TikTok, high-res camera footage can serve as an elevated way to promote your brand on the platform.",
+          "id": "7180721684054999041",
+          "like": 673,
+          "video_info": {
+            "vid": "v10033g50000cejgorjc77uc1lkjvj6g",
+            "duration": 15.019,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/o8uzDGQpgxYNAEJHjBIOtKeMDfBnQwbDBzCNnL~tplv-noop.image?dr=18692&refresh_token=3a588311&x-expires=1771122668&x-signature=mnwqHtwjhRqQOUl3Jy6ewPeEGHg%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cejgorjc77uc1lkjvj6g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/d6d5158743153f082d6b124862fd0686/69912fec/video/tos/alisg/tos-alisg-ve-0051c001-sg/oUDCEQibw1zIJPDNuSpjGQexNBvntugBAfYc2B/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2210&bt=1105&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aTtnZzhlNTZpZTxnOjRmOUBpam1tb2Y6ZnVqaDMzODYzNEAyYDZgYDBjXmAxLWFiMjNhYSMzc2gucjRnbGdgLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 0,
+          "ctr": 0.44,
+          "highlight": "A cool kid with a fashionable outfit attracts the audience's attention and raises interet by taking viewers through an exciting unboxing, showcasing products and how they look when tried on. During the process, the boy continuously stresses the brand's name to reinforce its impression; the brand logo and CTA button are shown in the end.",
+          "id": "7149285748738539521",
+          "like": 21,
+          "video_info": {
+            "vid": "v10033g50000ccrlqrrc77ucknquak7g",
+            "duration": 41.216,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/895f311b4bbe4bb682c9dd62ad3498f5~tplv-noop.image?dr=18692&refresh_token=ede6dd6e&x-expires=1771122694&x-signature=i3GUnGytF47D5UfuFkmM4tn0ht0%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000ccrlqrrc77ucknquak7g",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/d0b65c57cd0ec4e358b479125278dbbd/69913006/video/tos/alisg/tos-alisg-v-0000/owDXcvIgQTAePD1DvYNUZNbfy1nHBBFUlQNjSg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=2302&bt=1151&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=Ojw3OTw7ZTQ0aTo6M2c3OEBpam54cWY6ZnVvZjMzODYzNEA0YzNiX2FeXi4xLi0yXmMyYSM0Xm5ocjRvbm9gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e00088000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        },
+        {
+          "cost": 0,
+          "ctr": 0.41,
+          "highlight": "An emotional opener to quickly convey a key characteristic of the game, featuring a real person review in which the creator recognizes the game as one of the best in its category. This is a great way to captivate the audience's attention from the start.",
+          "id": "7160116491692638209",
+          "like": 110,
+          "video_info": {
+            "vid": "v0911dg40001cdemh7rc77u960rfg0p0",
+            "duration": 19.968,
+            "cover": "https://p16-sign-va.tiktokcdn.com/tos-maliva-v-2c3654-us/cb3992c08a02477cad3d6819022e00ba~tplv-noop.image?dr=18692&refresh_token=2a0c8aed&x-expires=1771122672&x-signature=%2F85JMLj2FJMrTsvzDDbxUh8MV6A%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v0911dg40001cdemh7rc77u960rfg0p0",
+            "video_url": {
+              "360p": "https://v16m-default.tiktokcdn.com/aa36dfbaa9062183d25d53e2702652bd/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/o0irnDg3QYGgwhjVoC6KBSeEGukh0CbtSUIeEf/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=1708&bt=854&cs=0&ds=1&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=OWQzZDY1Zzs1OzNnMzRmM0BpMzNpMzw6ZjpwZzQzN2c0M0BjX2FiNC4tNWAxMGE0YzUwYSNtZG8zcjRvZWJgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "480p": "https://v16m-default.tiktokcdn.com/7ade2e07c5be4715b54e724b97c7051e/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/oUbdPAortCILzRtNQz6xDLAyahgkfII4MrDUvJ/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2572&bt=1286&cs=0&ds=2&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=ZDs7ZDg7Mzw0aTo4aWVnOUBpMzNpMzw6ZjpwZzQzN2c0M0A1MS1hNC5eNjUxMi4yYC82YSNtZG8zcjRvZWJgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "540p": "https://v16m-default.tiktokcdn.com/31fdef5826d4933c4f4cfcd3aac7858c/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/oAzDphJQRUarPfLIAkhtlbCLb4DyA6oMdxIrCg/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=2994&bt=1497&cs=0&ds=6&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=NWYzaDVlNGg4PGQ6MzM3ZEBpMzNpMzw6ZjpwZzQzN2c0M0BiLTM2XjUvXjYxMzZeLl4wYSNtZG8zcjRvZWJgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000",
+              "720p": "https://v16m-default.tiktokcdn.com/1d90c974fb771fec939a3986aa64c45f/69912ff0/video/tos/maliva/tos-maliva-v-2c3654-us/oExQkXdMPAAIrCf6Jg4UDLrQFrIboktxYRazhy/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C0%7C0&cv=1&br=4316&bt=2158&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=M2Q1PDU8ZTc2ODNlaDc8Z0BpMzNpMzw6ZjpwZzQzN2c0M0AuY18xL15eNS8xLzQvMzIyYSNtZG8zcjRvZWJgLS1kLjZzcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 720,
+            "height": 1280
+          }
+        },
+        {
+          "cost": 0,
+          "ctr": 0.99,
+          "highlight": "This unboxing showcase video uses the text-to-speech effect combined with stickers and GIFs to emphasize promotional and key selling points. The assembly process also delivers the selling points clearly and keeps viewers engaged.",
+          "id": "7166081864125366274",
+          "like": 0,
+          "video_info": {
+            "vid": "v10033g50000cdpgierc77udpgpn01tg",
+            "duration": 27.947,
+            "cover": "https://p16-sign-sg.tiktokcdn.com/v0201/ogzEYoBDAzCuNowzo7f5wSIhmANtCtdtBYAxBY~tplv-noop.image?dr=18692&refresh_token=d7e3d1b6&x-expires=1771122680&x-signature=q2DEAPYtXxauMhabfoSGY5klj6w%3D&t=9276707c&ps=14f1eb3e&shp=9e36835a&shcp=317596d8&idc=my&VideoID=v10033g50000cdpgierc77udpgpn01tg",
+            "video_url": {
+              "720p": "https://v16m-default.tiktokcdn.com/c0e8078370a0045520c7fbb443cbd93e/69912ff8/video/tos/alisg/tos-alisg-ve-0051c001-sg/owuA7AhYihzGm9wBSzpwflLAtNoQuxEBINIdDH/?a=0&bti=NTU4QDM1NGA%3D&ch=0&cr=0&dr=0&lr=tiktok_business&cd=0%7C0%7C1%7C0&cv=1&br=3898&bt=1949&cs=0&ds=3&ft=cApXJCz7ThWHg14s1GZmo0P&mime_type=video_mp4&qs=0&rc=aTdmPDU2ZWc7OzYzOGY5OEBpajRxamc6ZmhqZzMzODYzNEAuLWJgMWIxXzAxYV5eYDQvYSNxLW1tcjRvZm1gLS1kMC1zcw%3D%3D&vvpl=1&l=20260215043053BD602C51F5319B824815&btag=e000b8000"
+            },
+            "width": 576,
+            "height": 1024
+          }
+        }
+      ],
+      "pagination": {
+        "page": 1,
+        "size": 50,
+        "total": 39,
+        "has_more": false
+      }
+    }
+  }
+]
+
+아웃풋 형식은 이러해
+
+입력받을 값으로는 dashboard_likes[] (1~5까지 중 하나), dashboard_period (7 or 30 or 180), dashboard_region, dashboard_search(, dashboard_sort_by(impression, ctr, play_6s_rate, play_2s_rate, like 중 하나)
+
+이렇게 받고(근데 전부 옵션이야 필수 입력값은 dashboard_sort_by와  dashboard_period), 
+
+내보낼 값으로는 ctr, highlight, like, cover, video_url 이렇게 받아오고 싶어. ui는 @frontend/src/pages/TiktokCreativeCenterPage.tsx 과 동일하게 해줘.
