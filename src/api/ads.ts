@@ -121,6 +121,7 @@ export type TiktokScraperItem = {
   postPage: string | null;
   "channel.username": string | null;
   "channel.avatar": string | null;
+  "channel.followers": number | null;
   "video.url": string | null;
   "video.cover": string | null;
   "video.thumbnail": string | null;
@@ -144,6 +145,129 @@ export async function fetchTiktokScraper(body: TiktokScraperRequestBody) {
   }
 
   return res.json() as Promise<TiktokScraperResponse>;
+}
+
+export type GenerateVideoPromptRequest = {
+  title: string | null;
+  channelUsername: string | null;
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  shares?: number | null;
+  bookmarks?: number | null;
+  provider?: string | null;
+  model?: string | null;
+  size?: string | null;
+  seconds?: string | number | null;
+  /** true면 이미지(제품) 기반 광고 형식 지시를 프롬프트에 포함 */
+  hasImageFile?: boolean | null;
+};
+
+export type GenerateVideoPromptResponse = {
+  prompt: string;
+};
+
+export async function fetchGenerateVideoPrompt(body: GenerateVideoPromptRequest) {
+  const res = await fetch(`/api/ads/generate-video-prompt`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: body.title ?? "",
+      channelUsername: body.channelUsername ?? "",
+      views: body.views ?? null,
+      likes: body.likes ?? null,
+      comments: body.comments ?? null,
+      shares: body.shares ?? null,
+      bookmarks: body.bookmarks ?? null,
+      provider: body.provider ?? undefined,
+      model: body.model ?? undefined,
+      size: body.size ?? undefined,
+      seconds: body.seconds != null ? String(body.seconds) : undefined,
+      hasImageFile: body.hasImageFile ? true : undefined,
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const msg = typeof data?.error === "string" ? data.error : await res.text();
+    throw new Error(msg);
+  }
+
+  return res.json() as Promise<GenerateVideoPromptResponse>;
+}
+
+export type VideoGenerationRequest = {
+  prompt: string;
+  label?: string;
+  provider?: string;
+  model?: string;
+  size?: string;
+  seconds?: string;
+  numVideos?: number;
+  inputImageUrl?: string;
+  /** base64-encoded image (no data URL prefix). Optional for image-to-video. */
+  imageFileBase64?: string;
+  /** MIME type of imageFile (e.g. image/jpeg). Send with imageFileBase64 so backend sets Content-Type. */
+  imageFileMimeType?: string;
+  negativePrompt?: string;
+};
+
+export type VideoGenerationStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "COMPLETE"
+  | "FAILED"
+  | "CANCELLED"
+  | string;
+
+export type VideoGenerationData = {
+  id: string;
+  provider?: string;
+  status?: VideoGenerationStatus;
+  prompt?: string;
+  model?: string;
+  size?: string;
+  seconds?: string;
+  numVideos?: number | string;
+  outputUrl?: string | null;
+  errorMessage?: string | null;
+};
+
+export type CreateVideoGenerationResponse = {
+  message?: string;
+  data: VideoGenerationData;
+};
+
+export type GetVideoGenerationResponse = {
+  data: VideoGenerationData;
+};
+
+export async function createVideoGeneration(body: VideoGenerationRequest) {
+  const res = await fetch("/api/ads/video-generations", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = typeof data?.error === "string" ? data.error : "영상 생성 요청 실패";
+    throw new Error(msg);
+  }
+  return data as CreateVideoGenerationResponse;
+}
+
+export async function getVideoGenerationById(videoGenerationId: string) {
+  const res = await fetch(`/api/ads/video-generations/${encodeURIComponent(videoGenerationId)}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = typeof data?.error === "string" ? data.error : "영상 상태 조회 실패";
+    throw new Error(msg);
+  }
+  return data as GetVideoGenerationResponse;
+}
+
+export function getVideoGenerationContentUrl(videoGenerationId: string) {
+  return `/api/ads/video-generations/${encodeURIComponent(videoGenerationId)}/content`;
 }
 
 export type TiktokCreativeCenterTrendingVideosRequest = {

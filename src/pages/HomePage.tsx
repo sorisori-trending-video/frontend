@@ -23,7 +23,7 @@ export default function HomePage() {
               </div>
             </a>
 
-            <a
+            {/* <a
               href="/tiktok-apify"
               className="group rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
@@ -34,16 +34,16 @@ export default function HomePage() {
                 </div>
                 <span className="mt-0.5 text-zinc-400 transition group-hover:text-indigo-600">→</span>
               </div>
-            </a>
+            </a> */}
 
             <a
               href="/tiktok-scraper"
-              className="group rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="group rounded-2xl border border-zinc-200 bg-indigo-100 px-5 py-4 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold text-zinc-900">TikTok Search Scraper(2)</div>
-                  <div className="mt-1 text-sm text-zinc-600">검색 키워드로 틱톡 결과 조회 (검색속도가 더 빠르고 가격이 낮음)</div>
+                  <div className="text-sm font-semibold text-zinc-900">TikTok Search Scraper</div>
+                  <div className="mt-1 text-sm text-zinc-600">검색 키워드로 틱톡 검색 결과 조회</div>
                 </div>
                 <span className="mt-0.5 text-zinc-400 transition group-hover:text-indigo-600">→</span>
               </div>

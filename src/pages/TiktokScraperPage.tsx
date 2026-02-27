@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ComponentProps } from "react";
 import {
+  createVideoGeneration,
   fetchTiktokScraper,
+  fetchGenerateVideoPrompt,
+  getVideoGenerationById,
+  getVideoGenerationContentUrl,
   type TiktokScraperDateRange,
   type TiktokScraperItem,
   type TiktokScraperRequestBody,
+  type VideoGenerationStatus,
 } from "../api/ads";
 import { DASHBOARD_REGION_OPTIONS } from "../utils/dashboardRegionOptions";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -29,6 +34,43 @@ function formatUploadedAt(v: string | null) {
   const d = new Date(v);
   if (Number.isNaN(d.getTime())) return v;
   return `${toLocalYMD(d)} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function toMetricNumber(v: number | null) {
+  return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/** 인기 영상 Top 후보로 쓸 최소 조건 (이 조건을 넘어야 점수로 순위 경쟁) */
+const POPULAR_MIN_VIEWS = 4000;
+const POPULAR_MIN_ENGAGEMENT = 100; // likes + comments + shares + bookmarks 합계
+
+function isEligibleForPopularTop(it: TiktokScraperItem): boolean {
+  const views = toMetricNumber(it.views);
+  const engagement =
+    toMetricNumber(it.likes) +
+    toMetricNumber(it.comments) +
+    toMetricNumber(it.shares) +
+    toMetricNumber(it.bookmarks);
+  return views >= POPULAR_MIN_VIEWS && engagement >= POPULAR_MIN_ENGAGEMENT;
+}
+
+function calcInfluencerAdjustedScore(it: TiktokScraperItem) {
+  const views = toMetricNumber(it.views);
+  const likes = toMetricNumber(it.likes);
+  const comments = toMetricNumber(it.comments);
+  const shares = toMetricNumber(it.shares);
+  const bookmarks = toMetricNumber(it.bookmarks);
+  const followers = Math.max(0, toMetricNumber(it["channel.followers"]));
+
+  // 조회수 비중을 크게 (views * 0.28), 나머지 인터랙션 가중치 유지
+  const interactionWeighted = likes * 1.2 + comments * 1.8 + shares * 2.2 + bookmarks * 1.6 + views * 0.28;
+  // 팔로워 페널티 완화: log 계수 0.6으로 줄여 대형 계정 불이익 감소
+  const followerPenalty = Math.max(1, 0.4 + Math.log10(followers + 10) * 0.6);
+  const baseVirality = interactionWeighted / followerPenalty;
+
+  // 팔로워 대비 반응률(팔로워가 없거나 null이면 0으로 처리)
+  const interactionRate = followers > 0 ? (likes + comments + shares + bookmarks) / followers : 0;
+  return baseVirality + interactionRate * 5000;
 }
 
 function buildHeicFallbacks(src: string): string[] {
@@ -264,8 +306,14 @@ const RECOMMENDED_KEYWORDS: { label: string; tags: string[] }[] = [
   { label: "콘텐츠", tags: ["ai", "unboxing", "review", "tutorial", "haul"] },
 ];
 
-function MediaPreview(props: { title: string; thumbnail: string | null; videoUrl: string | null }) {
-  const { title, thumbnail, videoUrl } = props;
+function MediaPreview(props: {
+  title: string;
+  thumbnail: string | null;
+  videoUrl: string | null;
+  views?: number | null;
+  onPlayClick?: (e: React.MouseEvent) => void;
+}) {
+  const { title, thumbnail, videoUrl, views, onPlayClick } = props;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [started, setStarted] = useState(false);
 
@@ -305,7 +353,8 @@ function MediaPreview(props: { title: string; thumbnail: string | null; videoUrl
           type="button"
           className="absolute inset-0 flex items-center justify-center"
           aria-label="영상 재생"
-          onClick={() => {
+          onClick={(e) => {
+            onPlayClick?.(e);
             const el = videoRef.current;
             if (!el) return;
             setStarted(true);
@@ -317,6 +366,13 @@ function MediaPreview(props: { title: string; thumbnail: string | null; videoUrl
           </div>
         </button>
       )}
+
+      <div className="absolute bottom-0 left-0 right-0 px-4 py-2 text-xs text-white/50">
+        <div className="inline-flex items-center gap-1.5 rounded-full" title="Views">
+          <VisibilityIcon fontSize="inherit" className="text-white" sx={{ fontSize: "16px", textShadow: "0 0px 4px black" }} />
+          <span className="tabular-nums font-semibold text-white text-shadow-[0_0px_4px_black]">{formatNumber(views ?? null)}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -356,6 +412,26 @@ export default function TiktokScraperPage() {
   const [resultSort, setResultSort] = useState<"rank" | "newest" | "views" | "likes" | "comments" | "shares" | "bookmarks">(
     "rank"
   );
+  const [topCarouselPage, setTopCarouselPage] = useState(0);
+  const [topCarouselPerPage, setTopCarouselPerPage] = useState(1);
+  const topCarouselScrollRef = useRef<HTMLUListElement | null>(null);
+  const topCarouselSnapTimeoutRef = useRef<number | null>(null);
+
+  const [selectedCard, setSelectedCard] = useState<TiktokScraperItem | null>(null);
+  const [promptLoading, setPromptLoading] = useState(false);
+  const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
+  const [promptError, setPromptError] = useState<string | null>(null);
+  const [videoGenerateLoading, setVideoGenerateLoading] = useState(false);
+  const [videoGenerationId, setVideoGenerationId] = useState<string | null>(null);
+  const [videoGenerationStatus, setVideoGenerationStatus] = useState<VideoGenerationStatus | null>(null);
+  const [videoGenerationError, setVideoGenerationError] = useState<string | null>(null);
+
+  const [videoProvider, setVideoProvider] = useState<"sora" | "kling">("kling");
+  const [videoModel, setVideoModel] = useState<string>("kling-v3");
+  const [videoSize, setVideoSize] = useState<string>("9:16");
+  const [videoSeconds, setVideoSeconds] = useState<number>(5);
+  const [inputImageUrl, setInputImageUrl] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const requestBody: TiktokScraperRequestBody = useMemo(() => {
     const body: TiktokScraperRequestBody = { startUrls: parsedKeywords };
@@ -389,6 +465,10 @@ export default function TiktokScraperPage() {
 
   const inputBase =
     "mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100";
+  /** Safari에서 native select 스타일을 제거해 inputBase 스타일이 적용되도록 함. 화살표는 배경으로 추가 */
+  const selectBase =
+    `${inputBase} appearance-none [&::-ms-expand]:hidden pr-9 bg-no-repeat bg-[length:1rem] bg-[position:right_0.5rem_center] ` +
+    `bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%236b7280%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')]`;
   const buttonPrimary =
     "inline-flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200";
   const buttonSecondary =
@@ -397,7 +477,7 @@ export default function TiktokScraperPage() {
   const clamp3Style: CSSProperties = {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",
-    WebkitLineClamp: 3,
+    WebkitLineClamp: 2,
     overflow: "hidden",
   };
 
@@ -439,14 +519,256 @@ export default function TiktokScraperPage() {
     return sorted;
   }, [keyedItems, resultQuery, resultSort]);
 
+  const top10AdjustedItems = useMemo(() => {
+    const eligible = visibleItems.filter((x) => isEligibleForPopularTop(x.it));
+    const scored = eligible.map((x) => ({
+      ...x,
+      adjustedScore: calcInfluencerAdjustedScore(x.it),
+    }));
+    scored.sort((a, b) => b.adjustedScore - a.adjustedScore);
+    return scored.slice(0, 10);
+  }, [visibleItems]);
+
+  useEffect(() => {
+    setTopCarouselPage(0);
+  }, [top10AdjustedItems.length]);
+
+  useEffect(() => {
+    if (!selectedCard) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedCard(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [selectedCard]);
+
+  const handleGeneratePrompt = async () => {
+    if (!selectedCard) return;
+    setPromptLoading(true);
+    setPromptError(null);
+    setGeneratedPrompt(null);
+    try {
+      const res = await fetchGenerateVideoPrompt({
+        title: selectedCard.title,
+        channelUsername: selectedCard["channel.username"],
+        views: selectedCard.views,
+        likes: selectedCard.likes,
+        comments: selectedCard.comments,
+        shares: selectedCard.shares,
+        bookmarks: selectedCard.bookmarks,
+        provider: videoProvider,
+        model: videoModel,
+        size: videoSize,
+        seconds: videoSeconds,
+        hasImageFile: !!(imageFile || inputImageUrl.trim()),
+      });
+      setGeneratedPrompt(res.prompt);
+      setPromptError(null);
+    } catch (err) {
+      setGeneratedPrompt(null);
+      setPromptError(err instanceof Error ? err.message : "프롬프트 생성 실패");
+    } finally {
+      setPromptLoading(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!generatedPrompt?.trim()) return;
+    setVideoGenerateLoading(true);
+    setVideoGenerationError(null);
+    setVideoGenerationStatus(null);
+    setVideoGenerationId(null);
+    try {
+      let imageFileBase64: string | undefined;
+      let imageFileMimeType: string | undefined;
+      if (imageFile) {
+        imageFileBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result;
+            if (typeof dataUrl !== "string") {
+              reject(new Error("파일 읽기 실패"));
+              return;
+            }
+            const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
+            resolve(base64 ?? "");
+          };
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(imageFile);
+        });
+        imageFileMimeType = imageFile.type || "image/jpeg";
+      }
+      const created = await createVideoGeneration({
+        prompt: generatedPrompt,
+        provider: videoProvider,
+        model: videoModel,
+        size: videoSize,
+        seconds: String(videoSeconds),
+        numVideos: 1,
+        inputImageUrl: inputImageUrl.trim() || undefined,
+        imageFileBase64: imageFileBase64 || undefined,
+        imageFileMimeType: imageFileMimeType || undefined,
+      });
+      const id = created?.data?.id ?? null;
+      setVideoGenerationId(id);
+      setVideoGenerationStatus(created?.data?.status ?? "PROCESSING");
+      if (!id) {
+        setVideoGenerationError("영상 생성 ID를 받지 못했습니다.");
+      }
+    } catch (err) {
+      setVideoGenerationError(err instanceof Error ? err.message : "영상 생성 요청 실패");
+    } finally {
+      setVideoGenerateLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!videoGenerationId) return;
+    if (videoGenerationStatus === "COMPLETE" || videoGenerationStatus === "FAILED" || videoGenerationStatus === "CANCELLED") {
+      return;
+    }
+
+    let stop = false;
+    const tick = async () => {
+      try {
+        const detail = await getVideoGenerationById(videoGenerationId);
+        if (stop) return;
+        const nextStatus = detail?.data?.status ?? null;
+        setVideoGenerationStatus(nextStatus);
+        if (nextStatus === "FAILED" && detail?.data?.errorMessage) {
+          setVideoGenerationError(String(detail.data.errorMessage));
+        }
+      } catch (err) {
+        if (!stop) {
+          setVideoGenerationError(err instanceof Error ? err.message : "영상 상태 조회 실패");
+        }
+      }
+    };
+
+    void tick();
+    const id = window.setInterval(() => {
+      void tick();
+    }, 5000);
+    return () => {
+      stop = true;
+      window.clearInterval(id);
+    };
+  }, [videoGenerationId, videoGenerationStatus]);
+
+  useEffect(() => {
+    if (videoProvider === "sora") setVideoModel("sora-2");
+    else setVideoModel("kling-v3");
+  }, [videoProvider]);
+
+  useEffect(() => {
+    if (!selectedCard) {
+      setGeneratedPrompt(null);
+      setPromptError(null);
+      setVideoGenerationId(null);
+      setVideoGenerationStatus(null);
+      setVideoGenerationError(null);
+      setVideoGenerateLoading(false);
+      setVideoProvider("kling");
+      setVideoModel("kling-v3");
+      setVideoSize("9:16");
+      setVideoSeconds(5);
+      setInputImageUrl("");
+      setImageFile(null);
+      return;
+    }
+  }, [selectedCard]);
+
+  useEffect(() => {
+    const updatePerPage = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) {
+        setTopCarouselPerPage(4);
+        return;
+      }
+      if (w >= 768) {
+        setTopCarouselPerPage(3);
+        return;
+      }
+      if (w >= 640) {
+        setTopCarouselPerPage(2);
+        return;
+      }
+      setTopCarouselPerPage(1);
+    };
+    updatePerPage();
+    window.addEventListener("resize", updatePerPage);
+    return () => window.removeEventListener("resize", updatePerPage);
+  }, []);
+
+  const topCarouselTotalPages = useMemo(() => {
+    return Math.max(1, Math.ceil(top10AdjustedItems.length / topCarouselPerPage));
+  }, [top10AdjustedItems.length, topCarouselPerPage]);
+
+  useEffect(() => {
+    setTopCarouselPage((cur) => Math.min(cur, topCarouselTotalPages - 1));
+  }, [topCarouselTotalPages]);
+
+  const getTopCarouselPageWidth = (el: HTMLUListElement) => {
+    const children = el.children;
+    if (!children || children.length === 0) return el.clientWidth;
+
+    // 한 페이지에 보여줄 카드 수(topCarouselPerPage)를 기준으로,
+    // 0번째 카드와 topCarouselPerPage번째 카드 사이의 거리(= 한 페이지 너비)를 계산
+    if (topCarouselPerPage <= 1 || children.length === 1) {
+      const first = children[0] as HTMLElement;
+      return first.offsetWidth || el.clientWidth;
+    }
+
+    const first = children[0] as HTMLElement;
+    const targetIndex = Math.min(topCarouselPerPage, children.length - 1);
+    const target = children[targetIndex] as HTMLElement;
+    const delta = target.offsetLeft - first.offsetLeft;
+
+    return delta > 0 ? delta : el.clientWidth;
+  };
+
+  const scrollTopCarouselToPage = (pageIndex: number) => {
+    const el = topCarouselScrollRef.current;
+    if (!el) return;
+    const pageWidth = getTopCarouselPageWidth(el);
+    if (pageWidth <= 0) return;
+
+    el.scrollTo({ left: pageIndex * pageWidth, behavior: "smooth" });
+    setTopCarouselPage(pageIndex);
+  };
+
+  const handleTopCarouselScroll = () => {
+    const el = topCarouselScrollRef.current;
+    if (!el || topCarouselTotalPages <= 1) return;
+    const pageWidth = getTopCarouselPageWidth(el);
+    if (pageWidth <= 0) return;
+
+    const rawPage = el.scrollLeft / pageWidth;
+    const page = Math.round(rawPage);
+    const clamped = Math.min(Math.max(page, 0), topCarouselTotalPages - 1);
+    setTopCarouselPage(clamped);
+
+    const targetLeft = clamped * pageWidth;
+    if (Math.abs(el.scrollLeft - targetLeft) < 1) return;
+
+    if (topCarouselSnapTimeoutRef.current != null) {
+      window.clearTimeout(topCarouselSnapTimeoutRef.current);
+    }
+    topCarouselSnapTimeoutRef.current = window.setTimeout(() => {
+      const currentEl = topCarouselScrollRef.current;
+      if (!currentEl) return;
+      currentEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+    }, 120);
+  };
+
   return (
     <div className="min-h-dvh bg-linear-to-b from-white via-white to-indigo-50/60">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-indigo-700">Tiktok scraper</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">TikTok Search Scraper(2)</h1>
-            <p className="mt-1 text-sm text-zinc-600">검색 키워드로 틱톡 결과를 가져와요.</p>
+            <p className="text-sm font-semibold text-indigo-700">Tiktok Videos</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900 sm:text-3xl">TikTok Video Search</h1>
+            <p className="mt-1 text-sm text-zinc-600">검색 키워드로 틱톡 검색 결과를 가져와요.</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -459,7 +781,7 @@ export default function TiktokScraperPage() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-zinc-200/70 bg-white/70 p-5 shadow-sm backdrop-blur sm:p-7">
+        <div className="relative z-20 mt-6 rounded-3xl border border-zinc-200/70 bg-white/70 p-5 shadow-sm backdrop-blur sm:p-7">
           <form onSubmit={onSubmit} className="grid gap-4">
             <div className="grid gap-4 grid-cols-1 xl:w-[60%]">
               <label className="text-sm font-medium text-zinc-900">
@@ -471,6 +793,7 @@ export default function TiktokScraperPage() {
                   placeholder="예) oliveyoung, ai"
                   autoComplete="off"
                 />
+              </label>
                 <div className="mt-2 grid gap-2">
                   <div className="text-xs font-semibold text-zinc-500">추천 키워드 (클릭하면 추가)</div>
                   <div className="grid gap-2">
@@ -510,7 +833,10 @@ export default function TiktokScraperPage() {
                             key={t}
                             type="button"
                             className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200 hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
-                            onClick={() => setKeywordsText((cur) => removeKeywordFromText(cur, t))}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setKeywordsText((cur) => removeKeywordFromText(cur, t));
+                            }}
                             title="클릭하면 제거"
                           >
                             <span>#{t}</span>
@@ -526,7 +852,6 @@ export default function TiktokScraperPage() {
                     </div>
                   )}
                 </div>
-              </label>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -544,7 +869,7 @@ export default function TiktokScraperPage() {
               <label className="text-sm font-medium text-zinc-900">
                 기간
                 <select
-                  className={inputBase}
+                  className={selectBase}
                   value={dateRange}
                   onChange={(e) => setDateRange(e.target.value as TiktokScraperDateRange)}
                 >
@@ -594,7 +919,7 @@ export default function TiktokScraperPage() {
           </div>
         )}
 
-        <div className="mt-8">
+        <div className="relative z-10 mt-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="text-sm font-semibold text-indigo-700">Results</div>
@@ -620,7 +945,7 @@ export default function TiktokScraperPage() {
 
               <label className="text-sm font-medium text-zinc-900">
                 정렬
-                <select className={inputBase} value={resultSort} onChange={(e) => setResultSort(e.target.value as typeof resultSort)}>
+                <select className={selectBase} value={resultSort} onChange={(e) => setResultSort(e.target.value as typeof resultSort)}>
                   <option value="rank">기본(가져온 순서)</option>
                   <option value="newest">최신 업로드</option>
                   <option value="views">조회수</option>
@@ -633,12 +958,197 @@ export default function TiktokScraperPage() {
             </div>
           </div>
 
+          {top10AdjustedItems.length > 0 && (
+            <section className="mt-5 rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4">
+              <div className="flex items-end justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-indigo-700">Top 10</div>
+                  <h3 className="mt-1 text-base font-semibold text-zinc-900">
+                    Trending Videos
+                  </h3>
+                </div>
+              </div>
+
+              <div className="relative mt-3 px-4">
+                <button
+                  type="button"
+                  className="absolute top-1/2 left-0 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={() => {
+                    const target = Math.max(0, topCarouselPage - 1);
+                    scrollTopCarouselToPage(target);
+                  }}
+                  disabled={topCarouselPage === 0}
+                  aria-label="이전 슬라이드"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="absolute top-1/2 right-0 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={() => {
+                    const target = Math.min(topCarouselTotalPages - 1, topCarouselPage + 1);
+                    scrollTopCarouselToPage(target);
+                  }}
+                  disabled={topCarouselPage >= topCarouselTotalPages - 1}
+                  aria-label="다음 슬라이드"
+                >
+                  ›
+                </button>
+
+                <ul
+                  ref={topCarouselScrollRef}
+                  onScroll={handleTopCarouselScroll}
+                  className="flex flex-nowrap gap-3 overflow-x-auto overflow-y-hidden p-2 scroll-smooth [&::-webkit-scrollbar]:hidden"
+                  style={{
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                    scrollSnapType: "x mandatory",
+                  }}
+                >
+                  {top10AdjustedItems.map(({ it, key }, idx) => {
+                    const title = it.title ?? `@${it["channel.username"] ?? "author"}`;
+                    const thumbnail = it["video.thumbnail"] ?? it["video.cover"] ?? null;
+                    const videoUrl = it["video.url"] ?? null;
+                    const username = it["channel.username"];
+                    const followers = it["channel.followers"];
+                    const topRank = idx + 1;
+
+                    return (
+                      <li
+                        key={`top-${key}`}
+                        className="flex h-full shrink-0 flex-col rounded-3xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
+                        style={{
+                          width: `calc((100% - ${(topCarouselPerPage - 1) * 12}px) / ${topCarouselPerPage})`,
+                          scrollSnapAlign: "start",
+                          scrollSnapStop: "always",
+                        }}
+                      >
+                        <div className="p-3">
+                          <MediaPreview
+                            title={title}
+                            thumbnail={thumbnail}
+                            videoUrl={videoUrl}
+                            views={it.views}
+                            onPlayClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+
+                        <div className="flex flex-1 flex-col px-4 pb-4">
+                          <div className="flex flex-col items-start justify-between gap-2">
+                            <div className="flex min-w-0 w-full items-center gap-2">
+                              <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200">
+                                TOP {topRank}
+                              </span>
+                              <div className="min-w-0">
+                                <div className="truncate text-sm font-semibold text-zinc-900" title={username ?? undefined}>
+                                  @{username ?? "-"}
+                                </div>
+                                <div className="text-xs text-zinc-500">팔로워 {formatNumber(followers)}</div>
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 text-right text-xs text-zinc-500">
+                              <div className="tabular-nums">{formatUploadedAt(it.uploadedAtFormatted)}</div>
+                            </div>
+                          </div>
+
+                          <div
+                            className="mt-3 min-h-[42px] text-sm leading-relaxed text-zinc-800"
+                            style={clamp3Style}
+                            title={it.title ?? undefined}
+                          >
+                            {it.title ?? " "}
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-700">
+                            {/* <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Views">
+                              <VisibilityIcon fontSize="small" className="text-zinc-500" />
+                              <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.views)}</span>
+                            </div> */}
+                            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Likes">
+                              <FavoriteIcon fontSize="small" className="text-rose-500" />
+                              <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.likes)}</span>
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Comments">
+                              <SmsIcon fontSize="small" className="text-zinc-500" />
+                              <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.comments)}</span>
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Shares">
+                              <ShareIcon fontSize="small" className="text-zinc-500" />
+                              <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.shares)}</span>
+                            </div>
+                            <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Bookmarks">
+                              <BookmarkIcon fontSize="small" className="text-zinc-500" />
+                              <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.bookmarks)}</span>
+                            </div>
+                          </div>
+
+                          <div className="mt-auto grid gap-2 pt-4 sm:grid-cols-1">
+                            {it.postPage ? (
+                              <a
+                                className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-zinc-200"
+                                href={it.postPage}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                TikTok에서 보기
+                              </a>
+                            ) : (
+                              <div className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-center text-sm font-semibold text-zinc-400">
+                                TikTok 링크 없음
+                              </div>
+                            )}
+                            {/* <button
+                              type="button"
+                              className="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
+                              onClick={() => setSelectedCard(it)}
+                            >
+                              비슷한 영상 만들기
+                            </button> */}
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className="mt-3 flex items-center justify-center gap-1.5">
+                  {Array.from({ length: topCarouselTotalPages }).map((_, dotIdx) => {
+                    const active = dotIdx === topCarouselPage;
+                    return (
+                      <button
+                        key={`dot-${dotIdx}`}
+                        type="button"
+                        aria-label={`${dotIdx + 1}번 슬라이드로 이동`}
+                        onClick={() => scrollTopCarouselToPage(dotIdx)}
+                        className={`h-2.5 w-2.5 rounded-full transition ${
+                          active ? "bg-indigo-600" : "bg-zinc-300 hover:bg-zinc-400"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {items.length > 0 && top10AdjustedItems.length === 0 && (
+            <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900">
+              <span className="font-semibold">인기 영상 후보가 없어요.</span>
+              <span className="ml-1">
+                최소 조회수 {POPULAR_MIN_VIEWS.toLocaleString()}회, 인터랙션(좋아요+댓글+공유+저장) {POPULAR_MIN_ENGAGEMENT} 이상인 영상만 Top 10에 노출돼요.
+              </span>
+            </div>
+          )}
+
           <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {visibleItems.map(({ it, key, rank }) => {
               const title = it.title ?? `@${it["channel.username"] ?? "author"}`;
               const thumbnail = it["video.thumbnail"] ?? it["video.cover"] ?? null;
               const videoUrl = it["video.url"] ?? null;
               const username = it["channel.username"];
+              const followers = it["channel.followers"];
               // const avatar = it["channel.avatar"];
 
               return (
@@ -647,12 +1157,18 @@ export default function TiktokScraperPage() {
                   className="flex h-full flex-col rounded-3xl border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md"
                 >
                   <div className="p-3">
-                    <MediaPreview title={title} thumbnail={thumbnail} videoUrl={videoUrl} />
+                    <MediaPreview
+                      title={title}
+                      thumbnail={thumbnail}
+                      videoUrl={videoUrl}
+                      views={it.views}
+                      onPlayClick={(e) => e.stopPropagation()}
+                    />
                   </div>
 
                   <div className="flex flex-1 flex-col px-4 pb-4">
                     <div className="flex flex-col items-start justify-between gap-2">
-                      <div className="flex min-w-0 items-center gap-2">
+                      <div className="flex min-w-0 w-full items-center gap-2">
                         <span className="inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200">
                           #{rank}
                         </span>
@@ -671,6 +1187,7 @@ export default function TiktokScraperPage() {
                           <div className="truncate text-sm font-semibold text-zinc-900" title={username ?? undefined}>
                             @{username ?? "-"}
                           </div>
+                          <div className="text-xs text-zinc-500">팔로워 {formatNumber(followers)}</div>
                         </div>
                       </div>
 
@@ -679,17 +1196,19 @@ export default function TiktokScraperPage() {
                       </div>
                     </div>
 
-                    {it.title && (
-                      <div className="mt-3 text-sm leading-relaxed text-zinc-800" style={clamp3Style} title={it.title}>
-                        {it.title}
-                      </div>
-                    )}
+                    <div
+                      className="mt-3 min-h-[42px] text-sm leading-relaxed text-zinc-800"
+                      style={clamp3Style}
+                      title={it.title ?? undefined}
+                    >
+                      {it.title ?? " "}
+                    </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-700">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Views">
+                      {/* <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Views">
                         <VisibilityIcon fontSize="small" className="text-zinc-500" />
                         <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.views)}</span>
-                      </div>
+                      </div> */}
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-white px-2 py-1 ring-1 ring-zinc-200" title="Likes">
                         <FavoriteIcon fontSize="small" className="text-rose-500" />
                         <span className="tabular-nums font-semibold text-zinc-900">{formatNumber(it.likes)}</span>
@@ -715,6 +1234,7 @@ export default function TiktokScraperPage() {
                           href={it.postPage}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           TikTok에서 보기
                         </a>
@@ -723,6 +1243,13 @@ export default function TiktokScraperPage() {
                           TikTok 링크 없음
                         </div>
                       )}
+                      {/* <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
+                        onClick={() => setSelectedCard(it)}
+                      >
+                        비슷한 영상 만들기
+                      </button> */}
 
                       {/* {videoUrl ? (
                         <a
@@ -758,6 +1285,233 @@ export default function TiktokScraperPage() {
           )}
         </div>
       </div>
+
+      {/* 영상 프롬프트 생성 모달 */}
+      {selectedCard != null && (
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setSelectedCard(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="video-prompt-modal-title"
+        >
+          <div
+            className="relative max-h-[90vh] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
+              <h2 id="video-prompt-modal-title" className="text-lg font-semibold text-zinc-900">
+                비슷한 영상 제작 프롬프트
+              </h2>
+              <button
+                type="button"
+                className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+                onClick={() => setSelectedCard(null)}
+                aria-label="닫기"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="px-4 py-3 text-sm text-zinc-600">
+              <div className="rounded-xl bg-zinc-50 px-3 py-2">
+                <span className="font-medium text-zinc-800">@{selectedCard["channel.username"] ?? "-"}</span>
+                {selectedCard.title && (
+                  <p className="mt-1 line-clamp-2 text-zinc-700">{selectedCard.title}</p>
+                )}
+              </div>
+            </div>
+            <div className="max-h-[50vh] overflow-auto px-4 pb-4">
+              {promptLoading && (
+                <div className="flex items-center justify-center gap-2 py-6 text-zinc-500">
+                  <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+                  <span>영상 프롬프트 생성 중...</span>
+                </div>
+              )}
+              {promptError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                  <p>{promptError}</p>
+                  {(promptError.includes("한도를 초과") || /quota|429|exceeded|billing/i.test(promptError)) && (
+                    <a
+                      href="https://platform.openai.com/account/billing"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-block font-medium text-rose-700 underline hover:text-rose-900"
+                    >
+                      OpenAI 결제·플랜 확인 →
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 text-sm">
+                <div className="mb-2 font-semibold text-zinc-800">영상 생성 옵션</div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">Provider</span>
+                    <select
+                      className={selectBase}
+                      value={videoProvider}
+                      onChange={(e) => setVideoProvider(e.target.value as "sora" | "kling")}
+                    >
+                      <option value="kling">Kling</option>
+                      <option value="sora">Sora</option>
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">Model</span>
+                    <select
+                      className={selectBase}
+                      value={videoModel}
+                      onChange={(e) => setVideoModel(e.target.value)}
+                    >
+                      {videoProvider === "sora" ? (
+                        <>
+                          <option value="sora-2">sora-2</option>
+                          <option value="sora-2-pro">sora-2-pro</option>
+                        </>
+                      ) : (
+                        <option value="kling-v3">kling-v3</option>
+                      )}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">Size</span>
+                    <select
+                      className={selectBase}
+                      value={videoSize}
+                      onChange={(e) => setVideoSize(e.target.value)}
+                    >
+                      <option value="9:16">9:16</option>
+                      <option value="16:9">16:9</option>
+                      <option value="1:1">1:1</option>
+                      <option value="1280x720">1280x720</option>
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">Seconds</span>
+                    <select
+                      className={selectBase}
+                      value={videoSeconds}
+                      onChange={(e) => setVideoSeconds(Number(e.target.value))}
+                    >
+                      {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((n) => (
+                        <option key={n} value={n}>
+                          {n}초
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Sora supports 4, 8, 12 (default 4). Kling v3 supports 3–15.
+                    </p>
+                  </label>
+                </div>
+                <div className="mt-3 space-y-2">
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">이미지 URL (선택, image-to-video)</span>
+                    <input
+                      type="url"
+                      className={inputBase}
+                      placeholder="https://..."
+                      value={inputImageUrl}
+                      onChange={(e) => setInputImageUrl(e.target.value)}
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-medium text-zinc-600">이미지 파일 (선택, JPEG/PNG/WebP 최대 10MB)</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="block w-full text-sm text-zinc-600 file:mr-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+                      onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                    />
+                    {imageFile && (
+                      <span className="mt-1 block text-xs text-zinc-500">{imageFile.name}</span>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              {!generatedPrompt ? (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={promptLoading}
+                    onClick={handleGeneratePrompt}
+                  >
+                    {promptLoading ? "생성 중..." : "영상 프롬프트 생성하기"}
+                  </button>
+                  <p className="mt-2 text-center text-xs text-zinc-500">
+                    선택한 옵션(kling/sora, 길이 등)에 맞춰 참고 영상과 비슷한 느낌의 프롬프트를 생성해요.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  <textarea
+                    className="h-48 w-full rounded-xl border border-indigo-200 bg-indigo-50/40 p-3 text-sm leading-relaxed text-zinc-800 outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
+                    value={generatedPrompt}
+                    onChange={(e) => setGeneratedPrompt(e.target.value)}
+                  />
+
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={videoGenerateLoading || !generatedPrompt.trim() || videoGenerationStatus === "PROCESSING"}
+                      onClick={handleGenerateVideo}
+                    >
+                      {videoGenerateLoading ? "영상 생성 요청 중..." : "이 프롬프트로 영상 생성"}
+                    </button>
+                    {videoGenerationId &&
+                      (videoGenerationStatus === "PROCESSING" || videoGenerationStatus === "PENDING") && (
+                        <div className="flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700">
+                          <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+                          <span>영상 생성 중…</span>
+                        </div>
+                      )}
+                    {videoGenerationId && videoGenerationStatus === "COMPLETE" && (
+                      <a
+                        className="inline-flex items-center justify-center rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-50"
+                        href={getVideoGenerationContentUrl(videoGenerationId)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        생성 영상 다운로드
+                      </a>
+                    )}
+                  </div>
+
+                  {/* {videoGenerationId && (
+                    <div className="rounded-xl border border-zinc-200 bg-white p-3 text-xs text-zinc-700">
+                      <div>
+                        작업 ID: <span className="font-mono">{videoGenerationId}</span>
+                      </div>
+                      <div className="mt-1">
+                        상태: <span className="font-semibold">{videoGenerationStatus ?? "-"}</span>
+                      </div>
+                      {(videoGenerationStatus === "PROCESSING" || videoGenerationStatus === "PENDING") && (
+                        <div className="mt-2 flex items-center gap-2 text-zinc-600">
+                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+                          <span>영상 생성 중…</span>
+                        </div>
+                      )}
+                      {videoGenerationStatus === "COMPLETE" && (
+                        <div className="mt-2 text-emerald-700">영상 생성 완료. 다운로드 버튼으로 파일을 받을 수 있어요.</div>
+                      )}
+                    </div>
+                  )} */}
+
+                  {videoGenerationError && (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
+                      {videoGenerationError}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
