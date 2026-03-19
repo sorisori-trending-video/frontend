@@ -160,6 +160,21 @@ function TrendingCarousel(props: { items: RankedAd[] }) {
                   )}
                 </div>
 
+                <div className="mt-4">
+                  {ad.bodyText ? (
+                    <details className="group rounded-2xl border border-zinc-200 bg-white px-4 py-3">
+                      <summary className="cursor-pointer select-none text-sm font-semibold text-zinc-900 outline-none">
+                        본문 보기
+                        <span className="ml-2 text-xs font-medium text-zinc-500 group-open:hidden">(펼치기)</span>
+                      </summary>
+                      <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap wrap-break-word rounded-2xl bg-zinc-50 p-3 text-xs leading-relaxed text-zinc-800 ring-1 ring-zinc-200">
+                        {ad.bodyText}
+                      </pre>
+                    </details>
+                  ) : (
+                    <div className="text-sm text-zinc-500">본문 없음</div>
+                  )}
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {ad.adLibraryUrl && (
                     <a

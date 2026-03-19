@@ -147,6 +147,41 @@ export async function fetchTiktokScraper(body: TiktokScraperRequestBody) {
   return res.json() as Promise<TiktokScraperResponse>;
 }
 
+export type GenerateCompositeImageRequest = {
+  thumbnailImageUrl: string;
+  productImages: Array<{
+    base64: string;
+    mimeType?: string | null;
+    fileName?: string | null;
+  }>;
+  aspectRatio?: string | null;
+};
+
+export type GenerateCompositeImageResponse = {
+  compositeImageBase64: string;
+  compositeImageMimeType: string;
+  compositeSucceeded: boolean;
+  compositeFailureReason?: string | null;
+};
+
+export async function fetchGenerateCompositeImage(body: GenerateCompositeImageRequest) {
+  const res = await fetch(`/api/ads/generate-composite-image`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      thumbnailImageUrl: body.thumbnailImageUrl,
+      productImages: body.productImages,
+      aspectRatio: body.aspectRatio ?? "9:16",
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = typeof data?.error === "string" ? data.error : "이미지 합성 실패";
+    throw new Error(msg);
+  }
+  return data as GenerateCompositeImageResponse;
+}
+
 export type GenerateVideoPromptRequest = {
   title: string | null;
   channelUsername: string | null;
@@ -161,10 +196,26 @@ export type GenerateVideoPromptRequest = {
   seconds?: string | number | null;
   /** true면 이미지(제품) 기반 광고 형식 지시를 프롬프트에 포함 */
   hasImageFile?: boolean | null;
+  /** 참고 영상 썸네일 URL (스토리보드/썸네일 기반 프롬프트 및 썸네일+제품 합성용) */
+  thumbnailImageUrl?: string | null;
+  /** 참고 영상 URL (Gemini에 원본 영상 전달용, 객체일 수 있음) */
+  videoUrl?: string | null | Record<string, string>;
+  /** 1단계에서 생성한 합성 썸네일 base64 (Gemini에 전달) */
+  compositeImageBase64?: string | null;
+  compositeImageMimeType?: string | null;
+  /** 제품명·간단한 설명. 원본 영상과 비슷하게 만들고 이 설명을 바탕으로 대본 작성 */
+  productDescription?: string | null;
 };
 
 export type GenerateVideoPromptResponse = {
   prompt: string;
+  /** 썸네일+제품 합성 이미지 base64 (영상 생성 시 레퍼런스로 사용) */
+  compositeImageBase64?: string | null;
+  compositeImageMimeType?: string | null;
+  /** true: Gemini로 썸네일+제품 합성 성공, false: 썸네일만 사용(합성 불가) */
+  compositeSucceeded?: boolean | null;
+  /** 합성 불가일 때 사유 (compositeSucceeded === false일 때만) */
+  compositeFailureReason?: string | null;
 };
 
 export async function fetchGenerateVideoPrompt(body: GenerateVideoPromptRequest) {
@@ -184,6 +235,11 @@ export async function fetchGenerateVideoPrompt(body: GenerateVideoPromptRequest)
       size: body.size ?? undefined,
       seconds: body.seconds != null ? String(body.seconds) : undefined,
       hasImageFile: body.hasImageFile ? true : undefined,
+      thumbnailImageUrl: body.thumbnailImageUrl ?? undefined,
+      videoUrl: body.videoUrl ?? undefined,
+      compositeImageBase64: body.compositeImageBase64 ?? undefined,
+      compositeImageMimeType: body.compositeImageMimeType ?? undefined,
+      productDescription: body.productDescription ?? undefined,
     }),
   });
 

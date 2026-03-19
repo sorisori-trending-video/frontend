@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ComponentProps } from "react";
-import {
-  createVideoGeneration,
-  fetchTiktokScraper,
-  fetchGenerateVideoPrompt,
-  getVideoGenerationById,
-  getVideoGenerationContentUrl,
-  type TiktokScraperDateRange,
-  type TiktokScraperItem,
-  type TiktokScraperRequestBody,
-  type VideoGenerationStatus,
-} from "../api/ads";
+import { fetchTiktokScraper, type TiktokScraperDateRange, type TiktokScraperItem, type TiktokScraperRequestBody } from "../api/ads";
+import { SimilarVideoModal } from "../components/SimilarVideoModal";
 import { DASHBOARD_REGION_OPTIONS } from "../utils/dashboardRegionOptions";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -325,11 +316,11 @@ function MediaPreview(props: {
           className="h-full w-full object-cover"
           controls
           preload="none"
-          playsInline
+          // playsInline
           src={videoUrl}
           poster={thumbnail ?? undefined}
-          onPlay={() => setStarted(true)}
-          onEnded={() => setStarted(false)}
+          // onPlay={() => setStarted(true)}
+          // onEnded={() => setStarted(false)}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-zinc-500">영상 URL 없음</div>
@@ -418,20 +409,6 @@ export default function TiktokScraperPage() {
   const topCarouselSnapTimeoutRef = useRef<number | null>(null);
 
   const [selectedCard, setSelectedCard] = useState<TiktokScraperItem | null>(null);
-  const [promptLoading, setPromptLoading] = useState(false);
-  const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
-  const [promptError, setPromptError] = useState<string | null>(null);
-  const [videoGenerateLoading, setVideoGenerateLoading] = useState(false);
-  const [videoGenerationId, setVideoGenerationId] = useState<string | null>(null);
-  const [videoGenerationStatus, setVideoGenerationStatus] = useState<VideoGenerationStatus | null>(null);
-  const [videoGenerationError, setVideoGenerationError] = useState<string | null>(null);
-
-  const [videoProvider, setVideoProvider] = useState<"sora" | "kling">("kling");
-  const [videoModel, setVideoModel] = useState<string>("kling-v3");
-  const [videoSize, setVideoSize] = useState<string>("9:16");
-  const [videoSeconds, setVideoSeconds] = useState<number>(5);
-  const [inputImageUrl, setInputImageUrl] = useState<string>("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const requestBody: TiktokScraperRequestBody = useMemo(() => {
     const body: TiktokScraperRequestBody = { startUrls: parsedKeywords };
@@ -532,151 +509,6 @@ export default function TiktokScraperPage() {
   useEffect(() => {
     setTopCarouselPage(0);
   }, [top10AdjustedItems.length]);
-
-  useEffect(() => {
-    if (!selectedCard) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedCard(null);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [selectedCard]);
-
-  const handleGeneratePrompt = async () => {
-    if (!selectedCard) return;
-    setPromptLoading(true);
-    setPromptError(null);
-    setGeneratedPrompt(null);
-    try {
-      const res = await fetchGenerateVideoPrompt({
-        title: selectedCard.title,
-        channelUsername: selectedCard["channel.username"],
-        views: selectedCard.views,
-        likes: selectedCard.likes,
-        comments: selectedCard.comments,
-        shares: selectedCard.shares,
-        bookmarks: selectedCard.bookmarks,
-        provider: videoProvider,
-        model: videoModel,
-        size: videoSize,
-        seconds: videoSeconds,
-        hasImageFile: !!(imageFile || inputImageUrl.trim()),
-      });
-      setGeneratedPrompt(res.prompt);
-      setPromptError(null);
-    } catch (err) {
-      setGeneratedPrompt(null);
-      setPromptError(err instanceof Error ? err.message : "프롬프트 생성 실패");
-    } finally {
-      setPromptLoading(false);
-    }
-  };
-
-  const handleGenerateVideo = async () => {
-    if (!generatedPrompt?.trim()) return;
-    setVideoGenerateLoading(true);
-    setVideoGenerationError(null);
-    setVideoGenerationStatus(null);
-    setVideoGenerationId(null);
-    try {
-      let imageFileBase64: string | undefined;
-      let imageFileMimeType: string | undefined;
-      if (imageFile) {
-        imageFileBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const dataUrl = reader.result;
-            if (typeof dataUrl !== "string") {
-              reject(new Error("파일 읽기 실패"));
-              return;
-            }
-            const base64 = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
-            resolve(base64 ?? "");
-          };
-          reader.onerror = () => reject(reader.error);
-          reader.readAsDataURL(imageFile);
-        });
-        imageFileMimeType = imageFile.type || "image/jpeg";
-      }
-      const created = await createVideoGeneration({
-        prompt: generatedPrompt,
-        provider: videoProvider,
-        model: videoModel,
-        size: videoSize,
-        seconds: String(videoSeconds),
-        numVideos: 1,
-        inputImageUrl: inputImageUrl.trim() || undefined,
-        imageFileBase64: imageFileBase64 || undefined,
-        imageFileMimeType: imageFileMimeType || undefined,
-      });
-      const id = created?.data?.id ?? null;
-      setVideoGenerationId(id);
-      setVideoGenerationStatus(created?.data?.status ?? "PROCESSING");
-      if (!id) {
-        setVideoGenerationError("영상 생성 ID를 받지 못했습니다.");
-      }
-    } catch (err) {
-      setVideoGenerationError(err instanceof Error ? err.message : "영상 생성 요청 실패");
-    } finally {
-      setVideoGenerateLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!videoGenerationId) return;
-    if (videoGenerationStatus === "COMPLETE" || videoGenerationStatus === "FAILED" || videoGenerationStatus === "CANCELLED") {
-      return;
-    }
-
-    let stop = false;
-    const tick = async () => {
-      try {
-        const detail = await getVideoGenerationById(videoGenerationId);
-        if (stop) return;
-        const nextStatus = detail?.data?.status ?? null;
-        setVideoGenerationStatus(nextStatus);
-        if (nextStatus === "FAILED" && detail?.data?.errorMessage) {
-          setVideoGenerationError(String(detail.data.errorMessage));
-        }
-      } catch (err) {
-        if (!stop) {
-          setVideoGenerationError(err instanceof Error ? err.message : "영상 상태 조회 실패");
-        }
-      }
-    };
-
-    void tick();
-    const id = window.setInterval(() => {
-      void tick();
-    }, 5000);
-    return () => {
-      stop = true;
-      window.clearInterval(id);
-    };
-  }, [videoGenerationId, videoGenerationStatus]);
-
-  useEffect(() => {
-    if (videoProvider === "sora") setVideoModel("sora-2");
-    else setVideoModel("kling-v3");
-  }, [videoProvider]);
-
-  useEffect(() => {
-    if (!selectedCard) {
-      setGeneratedPrompt(null);
-      setPromptError(null);
-      setVideoGenerationId(null);
-      setVideoGenerationStatus(null);
-      setVideoGenerationError(null);
-      setVideoGenerateLoading(false);
-      setVideoProvider("kling");
-      setVideoModel("kling-v3");
-      setVideoSize("9:16");
-      setVideoSeconds(5);
-      setInputImageUrl("");
-      setImageFile(null);
-      return;
-    }
-  }, [selectedCard]);
 
   useEffect(() => {
     const updatePerPage = () => {
@@ -1099,13 +931,13 @@ export default function TiktokScraperPage() {
                                 TikTok 링크 없음
                               </div>
                             )}
-                            {/* <button
+                            <button
                               type="button"
                               className="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
                               onClick={() => setSelectedCard(it)}
                             >
                               비슷한 영상 만들기
-                            </button> */}
+                            </button>
                           </div>
                         </div>
                       </li>
@@ -1243,13 +1075,13 @@ export default function TiktokScraperPage() {
                           TikTok 링크 없음
                         </div>
                       )}
-                      {/* <button
+                      <button
                         type="button"
                         className="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-200"
                         onClick={() => setSelectedCard(it)}
                       >
                         비슷한 영상 만들기
-                      </button> */}
+                      </button>
 
                       {/* {videoUrl ? (
                         <a
@@ -1286,232 +1118,7 @@ export default function TiktokScraperPage() {
         </div>
       </div>
 
-      {/* 영상 프롬프트 생성 모달 */}
-      {selectedCard != null && (
-        <div
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setSelectedCard(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="video-prompt-modal-title"
-        >
-          <div
-            className="relative max-h-[90vh] w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3">
-              <h2 id="video-prompt-modal-title" className="text-lg font-semibold text-zinc-900">
-                비슷한 영상 제작 프롬프트
-              </h2>
-              <button
-                type="button"
-                className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
-                onClick={() => setSelectedCard(null)}
-                aria-label="닫기"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="px-4 py-3 text-sm text-zinc-600">
-              <div className="rounded-xl bg-zinc-50 px-3 py-2">
-                <span className="font-medium text-zinc-800">@{selectedCard["channel.username"] ?? "-"}</span>
-                {selectedCard.title && (
-                  <p className="mt-1 line-clamp-2 text-zinc-700">{selectedCard.title}</p>
-                )}
-              </div>
-            </div>
-            <div className="max-h-[50vh] overflow-auto px-4 pb-4">
-              {promptLoading && (
-                <div className="flex items-center justify-center gap-2 py-6 text-zinc-500">
-                  <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-                  <span>영상 프롬프트 생성 중...</span>
-                </div>
-              )}
-              {promptError && (
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
-                  <p>{promptError}</p>
-                  {(promptError.includes("한도를 초과") || /quota|429|exceeded|billing/i.test(promptError)) && (
-                    <a
-                      href="https://platform.openai.com/account/billing"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-2 inline-block font-medium text-rose-700 underline hover:text-rose-900"
-                    >
-                      OpenAI 결제·플랜 확인 →
-                    </a>
-                  )}
-                </div>
-              )}
-
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 text-sm">
-                <div className="mb-2 font-semibold text-zinc-800">영상 생성 옵션</div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">Provider</span>
-                    <select
-                      className={selectBase}
-                      value={videoProvider}
-                      onChange={(e) => setVideoProvider(e.target.value as "sora" | "kling")}
-                    >
-                      <option value="kling">Kling</option>
-                      <option value="sora">Sora</option>
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">Model</span>
-                    <select
-                      className={selectBase}
-                      value={videoModel}
-                      onChange={(e) => setVideoModel(e.target.value)}
-                    >
-                      {videoProvider === "sora" ? (
-                        <>
-                          <option value="sora-2">sora-2</option>
-                          <option value="sora-2-pro">sora-2-pro</option>
-                        </>
-                      ) : (
-                        <option value="kling-v3">kling-v3</option>
-                      )}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">Size</span>
-                    <select
-                      className={selectBase}
-                      value={videoSize}
-                      onChange={(e) => setVideoSize(e.target.value)}
-                    >
-                      <option value="9:16">9:16</option>
-                      <option value="16:9">16:9</option>
-                      <option value="1:1">1:1</option>
-                      <option value="1280x720">1280x720</option>
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">Seconds</span>
-                    <select
-                      className={selectBase}
-                      value={videoSeconds}
-                      onChange={(e) => setVideoSeconds(Number(e.target.value))}
-                    >
-                      {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((n) => (
-                        <option key={n} value={n}>
-                          {n}초
-                        </option>
-                      ))}
-                    </select>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      Sora supports 4, 8, 12 (default 4). Kling v3 supports 3–15.
-                    </p>
-                  </label>
-                </div>
-                <div className="mt-3 space-y-2">
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">이미지 URL (선택, image-to-video)</span>
-                    <input
-                      type="url"
-                      className={inputBase}
-                      placeholder="https://..."
-                      value={inputImageUrl}
-                      onChange={(e) => setInputImageUrl(e.target.value)}
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-medium text-zinc-600">이미지 파일 (선택, JPEG/PNG/WebP 최대 10MB)</span>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      className="block w-full text-sm text-zinc-600 file:mr-2 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
-                      onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-                    />
-                    {imageFile && (
-                      <span className="mt-1 block text-xs text-zinc-500">{imageFile.name}</span>
-                    )}
-                  </label>
-                </div>
-              </div>
-
-              {!generatedPrompt ? (
-                <div className="mt-3">
-                  <button
-                    type="button"
-                    className="inline-flex w-full items-center justify-center rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={promptLoading}
-                    onClick={handleGeneratePrompt}
-                  >
-                    {promptLoading ? "생성 중..." : "영상 프롬프트 생성하기"}
-                  </button>
-                  <p className="mt-2 text-center text-xs text-zinc-500">
-                    선택한 옵션(kling/sora, 길이 등)에 맞춰 참고 영상과 비슷한 느낌의 프롬프트를 생성해요.
-                  </p>
-                </div>
-              ) : (
-                <div className="mt-3 space-y-3">
-                  <textarea
-                    className="h-48 w-full rounded-xl border border-indigo-200 bg-indigo-50/40 p-3 text-sm leading-relaxed text-zinc-800 outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100"
-                    value={generatedPrompt}
-                    onChange={(e) => setGeneratedPrompt(e.target.value)}
-                  />
-
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <button
-                      type="button"
-                      className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={videoGenerateLoading || !generatedPrompt.trim() || videoGenerationStatus === "PROCESSING"}
-                      onClick={handleGenerateVideo}
-                    >
-                      {videoGenerateLoading ? "영상 생성 요청 중..." : "이 프롬프트로 영상 생성"}
-                    </button>
-                    {videoGenerationId &&
-                      (videoGenerationStatus === "PROCESSING" || videoGenerationStatus === "PENDING") && (
-                        <div className="flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700">
-                          <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-                          <span>영상 생성 중…</span>
-                        </div>
-                      )}
-                    {videoGenerationId && videoGenerationStatus === "COMPLETE" && (
-                      <a
-                        className="inline-flex items-center justify-center rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold text-zinc-700 shadow-sm transition hover:bg-zinc-50"
-                        href={getVideoGenerationContentUrl(videoGenerationId)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        생성 영상 다운로드
-                      </a>
-                    )}
-                  </div>
-
-                  {/* {videoGenerationId && (
-                    <div className="rounded-xl border border-zinc-200 bg-white p-3 text-xs text-zinc-700">
-                      <div>
-                        작업 ID: <span className="font-mono">{videoGenerationId}</span>
-                      </div>
-                      <div className="mt-1">
-                        상태: <span className="font-semibold">{videoGenerationStatus ?? "-"}</span>
-                      </div>
-                      {(videoGenerationStatus === "PROCESSING" || videoGenerationStatus === "PENDING") && (
-                        <div className="mt-2 flex items-center gap-2 text-zinc-600">
-                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-                          <span>영상 생성 중…</span>
-                        </div>
-                      )}
-                      {videoGenerationStatus === "COMPLETE" && (
-                        <div className="mt-2 text-emerald-700">영상 생성 완료. 다운로드 버튼으로 파일을 받을 수 있어요.</div>
-                      )}
-                    </div>
-                  )} */}
-
-                  {videoGenerationError && (
-                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">
-                      {videoGenerationError}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <SimilarVideoModal selectedCard={selectedCard} onClose={() => setSelectedCard(null)} />
     </div>
   );
 }
